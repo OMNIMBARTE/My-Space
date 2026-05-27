@@ -1,0 +1,78 @@
+{
+  "links": [
+    {
+      "id": "4f28ebf0bed3",
+      "name": "Chat GPT",
+      "url": "https://chatgpt.com",
+      "emoji": "💻",
+      "createdAt": "2026-05-02T14:27:11.852Z"
+    },
+    {
+      "id": "699bd5de3c5c",
+      "name": "Youtube",
+      "url": "https://youtube.com",
+      "emoji": "🌐",
+      "createdAt": "2026-05-02T14:27:48.565Z"
+    },
+    {
+      "id": "6c3410f6ee44",
+      "name": "Gmail",
+      "url": "https://mail.google.com/mail/u/1/#inbox",
+      "emoji": "💼",
+      "createdAt": "2026-05-02T14:28:11.639Z"
+    },
+    {
+      "id": "1fdbf53b06eb",
+      "name": "All Sem",
+      "url": "https://drive.google.com/drive/folders/1ZrblKyrycAj2G3WppztODlCLm9iqjP_s",
+      "emoji": "🎓",
+      "createdAt": "2026-05-02T14:28:44.703Z"
+    },
+    {
+      "id": "7386a1515bbf",
+      "name": "Internship",
+      "url": "https://docs.google.com/spreadsheets/d/143ffSK2vwMpgMzOMetESm85oiNerpSzAw-Dke1B1ejs/edit?gid=0#gid=0",
+      "emoji": "🛠️",
+      "createdAt": "2026-05-02T14:29:26.160Z"
+    },
+    {
+      "id": "5b5f366a98fe",
+      "name": "LeetCode",
+      "url": "https://leetcode.com/u/OM-INDRA/",
+      "emoji": "🚀",
+      "createdAt": "2026-05-02T14:30:49.974Z"
+    },
+    {
+      "id": "21a8c4a8de79",
+      "name": "HotStar",
+      "url": "https://www.hotstar.com/in/home",
+      "emoji": "🎬",
+      "createdAt": "2026-05-03T13:20:02.351Z"
+    },
+    {
+      "id": "174983c93b81",
+      "name": "Combined Sem",
+      "url": "https://drive.google.com/drive/folders/1Iq4bj-_Ma2W-uDYgqdzwzSIiaeSxI5KL",
+      "emoji": "🎓",
+      "createdAt": "2026-05-03T15:24:27.408Z"
+    },
+    {
+      "id": "3d9332e468f8",
+      "name": "Sem 5",
+      "url": "https://drive.google.com/drive/folders/1nRf7eSgaSGSwucMLxxvF2eLPW3dXLD8b",
+      "emoji": "🎓",
+      "createdAt": "2026-05-17T15:19:52.175Z"
+    }
+  ],
+  "todos": [
+    {
+      "id": "3f4a5162b17f",
+      "text": "leetcode",
+      "done": false,
+      "createdAt": "2026-05-27T03:48:58.617Z"
+    }
+  ],
+  "settings": {
+    "theme": "dark"
+  }
+}

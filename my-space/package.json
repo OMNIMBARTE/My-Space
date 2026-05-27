@@ -1,0 +1,13 @@
+{
+  "name": "my-space",
+  "version": "1.0.0",
+  "description": "Personal start-page with backend persistence",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "npx nodemon server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}

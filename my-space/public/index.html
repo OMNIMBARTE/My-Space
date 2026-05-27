@@ -1,0 +1,1671 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Space — Om</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Syne:wght@700;800&family=JetBrains+Mono:wght@300;400;500&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+/* ═══════════════════════════════════════════════════════════
+   ROOT & THEME TOKENS
+═══════════════════════════════════════════════════════════ */
+:root {
+  /* backgrounds */
+  --bg:   #060612;
+  --bg2:  #0c0c1e;
+  --bg3:  #12122a;
+
+  /* glass layers */
+  --glass-base:    rgba(255,255,255,0.042);
+  --glass-mid:     rgba(255,255,255,0.075);
+  --glass-high:    rgba(255,255,255,0.11);
+  --glass-border:  rgba(255,255,255,0.09);
+  --glass-border2: rgba(255,255,255,0.18);
+  --glass-inset:   rgba(255,255,255,0.04);
+
+  /* text */
+  --tx:   #f0f0ff;
+  --tx2:  #9090c0;
+  --tx3:  #484880;
+
+  /* accent palette */
+  --p1: #7c5cfc;   /* primary purple */
+  --p2: #a78bfa;   /* violet */
+  --p3: #e879f9;   /* magenta */
+  --c1: #22d3ee;   /* cyan */
+  --c2: #38bdf8;   /* sky */
+
+  /* glow ambients */
+  --glow-p: rgba(124,92,252,0.25);
+  --glow-c: rgba(34,211,238,0.15);
+  --glow-m: rgba(232,121,249,0.18);
+
+  /* status */
+  --red:   #f87171;
+  --green: #4ade80;
+
+  /* dim overlay for wallpaper */
+  --wp-dim: rgba(6,6,18,0.60);
+
+  /* card blur */
+  --blur: blur(24px) saturate(180%);
+}
+
+[data-theme="light"] {
+  --bg:   #ede8ff;
+  --bg2:  #e4deff;
+  --bg3:  #d8d0ff;
+  --glass-base:    rgba(255,255,255,0.45);
+  --glass-mid:     rgba(255,255,255,0.65);
+  --glass-high:    rgba(255,255,255,0.82);
+  --glass-border:  rgba(124,92,252,0.18);
+  --glass-border2: rgba(124,92,252,0.35);
+  --glass-inset:   rgba(255,255,255,0.30);
+  --tx:   #0e0824;
+  --tx2:  #4a3880;
+  --tx3:  #8878c0;
+  --glow-p: rgba(124,92,252,0.18);
+  --glow-c: rgba(34,211,238,0.10);
+  --glow-m: rgba(232,121,249,0.12);
+  --wp-dim: rgba(230,220,255,0.65);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RESET & BASE
+═══════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-thumb { background: var(--glass-border2); border-radius: 99px; }
+
+body {
+  font-family: 'Manrope', sans-serif;
+  background: var(--bg);
+  color: var(--tx);
+  min-height: 100vh;
+  overflow-x: hidden;
+  transition: background 0.5s, color 0.5s;
+  /* Page fade-in */
+  animation: page-arrive 0.7s ease both;
+}
+@keyframes page-arrive {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   CURSOR GLOW
+═══════════════════════════════════════════════════════════ */
+#cursor-glow {
+  position: fixed;
+  width: 480px;
+  height: 480px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(124,92,252,0.14) 0%, rgba(124,92,252,0.05) 40%, transparent 70%);
+  pointer-events: none;
+  z-index: 1;
+  transform: translate(-50%,-50%);
+  transition: left 0.12s ease, top 0.12s ease;
+  will-change: left, top;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   AMBIENT BACKGROUND SYSTEM
+═══════════════════════════════════════════════════════════ */
+.ambient {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
+}
+.orb {
+  position: absolute; border-radius: 50%;
+  filter: blur(120px);
+  animation: orb-drift 28s ease-in-out infinite;
+  will-change: transform;
+}
+.o1 {
+  width: 800px; height: 800px;
+  background: radial-gradient(circle, #5b3fcc 0%, transparent 65%);
+  top: -300px; left: -200px; opacity: 0.15;
+}
+.o2 {
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, #cc38cc 0%, transparent 65%);
+  bottom: -200px; right: -100px; opacity: 0.12;
+  animation-delay: -10s; animation-duration: 32s;
+}
+.o3 {
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, #1890cc 0%, transparent 65%);
+  top: 40%; left: 42%; opacity: 0.08;
+  animation-delay: -19s; animation-duration: 24s;
+}
+.o4 {
+  width: 300px; height: 300px;
+  background: radial-gradient(circle, #7c3faa 0%, transparent 65%);
+  top: 15%; right: 18%; opacity: 0.09;
+  animation-delay: -6s; animation-duration: 20s;
+}
+@keyframes orb-drift {
+  0%,100% { transform: translate(0,0) scale(1); }
+  25%      { transform: translate(60px,-50px) scale(1.08); }
+  50%      { transform: translate(-40px,70px) scale(0.94); }
+  75%      { transform: translate(30px,30px) scale(1.04); }
+}
+
+/* Particle canvas */
+#star-canvas {
+  position: fixed; inset: 0; z-index: 2; pointer-events: none;
+  opacity: 0.55;
+}
+
+/* Grain overlay */
+.grain {
+  position: fixed; inset: 0; z-index: 3; pointer-events: none; opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ═══════════════════════════════════════════════════════════
+   WALLPAPER LAYERS
+═══════════════════════════════════════════════════════════ */
+.wp-layer {
+  position: fixed; inset: 0; z-index: 4;
+  background-size: cover; background-position: center;
+  opacity: 0; transition: opacity 1s ease;
+  /* subtle parallax handled via JS */
+  will-change: transform;
+}
+.wp-layer.on { opacity: 1; }
+
+.wp-dim {
+  position: fixed; inset: 0; z-index: 5;
+  background: var(--wp-dim); pointer-events: none;
+  opacity: 0; transition: opacity 1s ease, background 0.5s;
+}
+.wp-dim.on { opacity: 1; }
+
+/* ═══════════════════════════════════════════════════════════
+   LAYOUT GRID
+═══════════════════════════════════════════════════════════ */
+.layout {
+  position: relative; z-index: 10;
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  grid-template-rows: auto auto auto 1fr auto;
+  gap: 18px;
+  max-width: 1380px;
+  margin: 0 auto;
+  padding: 24px 28px;
+  min-height: 100vh;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   GLASS CARD BASE
+═══════════════════════════════════════════════════════════ */
+.card {
+  background: var(--glass-base);
+  border: 1px solid var(--glass-border);
+  border-radius: 22px;
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+  position: relative; overflow: hidden;
+  transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1),
+              border-color 0.3s,
+              box-shadow 0.35s;
+  /* Floating animation base */
+  animation: float-card var(--float-dur, 8s) ease-in-out infinite var(--float-del, 0s);
+}
+
+/* Top rim shimmer */
+.card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent 0%, var(--glass-border2) 30%, rgba(167,139,250,0.5) 50%, var(--glass-border2) 70%, transparent 100%);
+  pointer-events: none;
+}
+
+/* Inner depth layer */
+.card::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(145deg, var(--glass-inset) 0%, transparent 60%);
+  border-radius: inherit; pointer-events: none;
+}
+
+.card:hover {
+  border-color: var(--glass-border2);
+  box-shadow: 0 12px 48px rgba(0,0,0,0.30), 0 0 0 1px rgba(124,92,252,0.12), inset 0 1px 0 var(--glass-border2);
+  transform: translateY(-3px);
+}
+
+@keyframes float-card {
+  0%,100% { transform: translateY(0px); }
+  50%      { transform: translateY(var(--float-y, -5px)); }
+}
+.card:hover { animation-play-state: paused; transform: translateY(-3px); }
+
+/* ═══════════════════════════════════════════════════════════
+   TOPBAR
+═══════════════════════════════════════════════════════════ */
+.topbar {
+  grid-column: 1 / -1;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+}
+
+.brand {
+  font-family: 'Orbitron', monospace;
+  font-weight: 900; font-size: 22px;
+  letter-spacing: 6px; text-transform: uppercase;
+  background: linear-gradient(110deg, var(--p2) 10%, var(--c1) 55%, var(--p3) 90%);
+  background-size: 200% auto;
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  animation: brand-shimmer 5s linear infinite;
+  user-select: none; flex-shrink: 0;
+}
+@keyframes brand-shimmer {
+  0%   { background-position: 0% center; }
+  100% { background-position: 200% center; }
+}
+
+.topbar-right { display: flex; align-items: center; gap: 8px; }
+
+.status-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 30px; padding: 0 12px;
+  border-radius: 15px;
+  border: 1px solid var(--glass-border2);
+  background: var(--glass-mid);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; color: var(--tx2);
+  white-space: nowrap; flex-shrink: 0; user-select: none;
+  backdrop-filter: blur(16px);
+}
+.status-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--p2); box-shadow: 0 0 6px var(--p2);
+  animation: blink 2.4s ease-in-out infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+.db-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  height: 28px; padding: 0 10px; border-radius: 14px;
+  border: 1px solid rgba(74,222,128,0.28);
+  background: rgba(74,222,128,0.07);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; color: var(--green); letter-spacing: 0.5px;
+  transition: all 0.3s;
+}
+.db-badge.offline {
+  border-color: rgba(248,113,113,0.28);
+  background: rgba(248,113,113,0.07);
+  color: var(--red);
+}
+.db-dot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--green); box-shadow: 0 0 5px var(--green); transition: all 0.3s;
+}
+.db-badge.offline .db-dot { background: var(--red); box-shadow: 0 0 5px var(--red); }
+
+/* ═══════════════════════════════════════════════════════════
+   CLOCK / GREETING ZONE
+═══════════════════════════════════════════════════════════ */
+.clock-wrap {
+  grid-column: 1;
+  display: flex; flex-direction: row; align-items: flex-start; gap: 22px;
+}
+
+.clock-main { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+
+.clock-time {
+  font-family: 'Orbitron', monospace;
+  font-weight: 900; font-size: 96px; line-height: 1;
+  letter-spacing: -2px;
+  background: linear-gradient(135deg, #ffffff 0%, var(--p2) 45%, var(--c1) 75%, var(--p3) 100%);
+  background-size: 300% 300%;
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  animation: clock-gradient 8s ease infinite;
+}
+@keyframes clock-gradient {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.clock-date {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; font-weight: 400;
+  letter-spacing: 3px; text-transform: uppercase;
+  color: var(--tx2); margin-top: 10px;
+}
+
+.greeting-line {
+  margin-top: 8px;
+  font-family: 'Manrope', sans-serif;
+  font-size: 24px; font-weight: 300;
+  color: var(--tx); line-height: 1.35;
+  letter-spacing: -0.2px;
+}
+.greeting-line strong {
+  font-weight: 700;
+  background: linear-gradient(90deg, var(--p2), var(--c1));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+
+.greeting-sub {
+  margin-top: 4px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px; color: var(--tx3); letter-spacing: 1px;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   INLINE FOCUS TIMER (next to clock)
+═══════════════════════════════════════════════════════════ */
+.focus-inline {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+  padding: 22px 20px;
+  background: var(--glass-mid);
+  border: 1px solid var(--glass-border2);
+  border-radius: 20px;
+  backdrop-filter: var(--blur);
+  min-width: 158px; align-self: center; flex-shrink: 0;
+  --float-dur: 9s; --float-del: -3s; --float-y: -4px;
+  animation: float-card 9s ease-in-out infinite -3s;
+  transition: border-color 0.3s, box-shadow 0.3s, transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+  position: relative; overflow: hidden;
+}
+.focus-inline::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--glass-border2) 50%, transparent);
+}
+.focus-inline:hover {
+  border-color: var(--glass-border2);
+  box-shadow: 0 12px 48px rgba(0,0,0,0.30), 0 0 0 1px rgba(124,92,252,0.12);
+  transform: translateY(-3px);
+  animation-play-state: paused;
+}
+
+.focus-label-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--tx2);
+}
+.focus-time {
+  font-family: 'Orbitron', monospace;
+  font-weight: 700; font-size: 34px;
+  background: linear-gradient(135deg, var(--p2), var(--p3));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  line-height: 1;
+}
+.focus-mode {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px; color: var(--tx3); letter-spacing: 1.5px; text-transform: uppercase;
+}
+.focus-btns { display: flex; gap: 6px; }
+.f-btn {
+  height: 28px; padding: 0 14px; border-radius: 14px;
+  font-family: 'Manrope', sans-serif; font-size: 12px; font-weight: 700;
+  cursor: pointer; border: none; transition: all 0.2s;
+}
+.f-go {
+  background: linear-gradient(135deg, var(--p1), var(--p3));
+  color: #fff; box-shadow: 0 2px 10px var(--glow-p);
+}
+.f-go:hover { transform: scale(1.07); box-shadow: 0 4px 18px var(--glow-m); }
+.f-rst {
+  background: var(--glass-mid); border: 1px solid var(--glass-border); color: var(--tx2);
+}
+.f-rst:hover { color: var(--tx); background: var(--glass-high); }
+
+/* ═══════════════════════════════════════════════════════════
+   SEARCH BAR
+═══════════════════════════════════════════════════════════ */
+.search-wrap {
+  grid-column: 1;
+  display: flex; flex-direction: column; gap: 12px;
+}
+
+.search-outer {
+  position: relative;
+  border-radius: 50px;
+  padding: 1.5px;
+  background: linear-gradient(135deg, var(--glass-border), var(--glass-border2), var(--glass-border));
+  background-size: 300% 300%;
+  animation: search-border 4s ease infinite;
+  transition: all 0.3s;
+}
+.search-outer.focused {
+  background: linear-gradient(135deg, var(--p1), var(--c1), var(--p3));
+  box-shadow: 0 0 28px var(--glow-p), 0 0 60px rgba(124,92,252,0.10);
+}
+@keyframes search-border {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.search-box {
+  display: flex; align-items: center;
+  background: var(--glass-mid);
+  border-radius: 50px;
+  backdrop-filter: var(--blur);
+  overflow: hidden;
+}
+
+.search-icon {
+  padding: 0 18px; font-size: 16px; color: var(--tx2); flex-shrink: 0;
+  transition: color 0.3s;
+}
+.search-outer.focused .search-icon { color: var(--p2); }
+
+#searchInput {
+  flex: 1; background: none; border: none; outline: none;
+  font-family: 'Manrope', sans-serif; font-size: 16px; font-weight: 400;
+  color: var(--tx); padding: 15px 0;
+}
+#searchInput::placeholder { color: var(--tx3); }
+
+.search-go {
+  margin: 6px; height: 36px; padding: 0 22px;
+  border-radius: 50px;
+  background: linear-gradient(135deg, var(--p1), var(--p3));
+  border: none; color: #fff;
+  font-family: 'Manrope', sans-serif; font-size: 13px; font-weight: 700;
+  cursor: pointer; box-shadow: 0 2px 14px var(--glow-p);
+  flex-shrink: 0; transition: all 0.2s;
+}
+.search-go:hover { transform: scale(1.06); box-shadow: 0 5px 22px var(--glow-m); }
+
+.engines {
+  display: flex; align-items: center; gap: 7px; flex-wrap: wrap;
+}
+.eng-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase;
+  color: var(--tx3); margin-right: 2px;
+}
+.eng {
+  display: flex; align-items: center; gap: 5px;
+  height: 34px; padding: 0 15px;
+  border-radius: 17px;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-base);
+  color: var(--tx2); font-size: 13px; font-weight: 600;
+  cursor: pointer; text-decoration: none;
+  backdrop-filter: blur(12px);
+  transition: all 0.2s;
+}
+.eng:hover, .eng.on {
+  background: linear-gradient(135deg, var(--p1), var(--p2));
+  border-color: transparent; color: #fff;
+  box-shadow: 0 3px 14px var(--glow-p); transform: translateY(-1px);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SECTION LABEL
+═══════════════════════════════════════════════════════════ */
+.sec-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; letter-spacing: 2.5px; text-transform: uppercase;
+  color: var(--tx3);
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 12px;
+}
+.sec-label::after {
+  content: ''; flex: 1; height: 1px;
+  background: linear-gradient(90deg, var(--glass-border2), transparent);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   MY LINKS
+═══════════════════════════════════════════════════════════ */
+.links-wrap { grid-column: 1; display: flex; flex-direction: column; gap: 10px; }
+
+.links-grid {
+  display: flex; flex-wrap: wrap; gap: 8px; min-height: 24px;
+}
+.link-empty {
+  font-size: 13px; color: var(--tx3); font-style: italic; display: none;
+}
+.link-empty.show { display: block; }
+
+.chip {
+  display: inline-flex; align-items: center; gap: 8px;
+  height: 38px; padding: 0 14px 0 10px;
+  border-radius: 19px;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-base);
+  color: var(--tx); font-size: 13px; font-weight: 500;
+  cursor: pointer; text-decoration: none;
+  backdrop-filter: blur(16px);
+  transition: all 0.28s cubic-bezier(0.34,1.56,0.64,1);
+  position: relative; overflow: hidden;
+  animation: chip-pop 0.35s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+@keyframes chip-pop { from{opacity:0;transform:scale(0.75)} to{opacity:1;transform:scale(1)} }
+.chip::before {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(135deg, var(--p1), var(--p3));
+  opacity: 0; transition: opacity 0.22s;
+}
+.chip:hover {
+  border-color: transparent; color: #fff;
+  transform: translateY(-4px) scale(1.05);
+  box-shadow: 0 10px 30px var(--glow-p);
+}
+.chip:hover::before { opacity: 1; }
+.chip:active { transform: scale(0.97); }
+
+.chip-icon {
+  width: 22px; height: 22px; border-radius: 6px;
+  background: var(--glass-mid); border: 1px solid var(--glass-border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; flex-shrink: 0; position: relative; z-index: 1;
+  transition: transform 0.2s;
+}
+.chip:hover .chip-icon { transform: scale(1.2) rotate(-8deg); }
+.chip-name { position: relative; z-index: 1; max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chip-del {
+  width: 15px; height: 15px; border-radius: 50%;
+  background: rgba(248,113,113,0.12); border: 1px solid rgba(248,113,113,0.3);
+  color: var(--red); font-size: 8px; font-weight: 700;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  opacity: 0; transition: all 0.15s; flex-shrink: 0; position: relative; z-index: 2;
+}
+.chip:hover .chip-del { opacity: 1; }
+.chip-del:hover { background: rgba(248,113,113,0.35); transform: scale(1.2) rotate(90deg); }
+
+.links-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+.add-btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  height: 34px; padding: 0 16px;
+  border: 1.5px dashed var(--glass-border); border-radius: 17px;
+  background: transparent; color: var(--tx2);
+  font-family: 'Manrope', sans-serif; font-size: 13px; font-weight: 600;
+  cursor: pointer; transition: all 0.2s;
+}
+.add-btn:hover { border-color: var(--p1); color: var(--p2); background: var(--glow-p); transform: translateY(-1px); }
+
+.pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 34px; padding: 0 15px;
+  border-radius: 17px;
+  border: 1px solid var(--glass-border2);
+  background: var(--glass-mid);
+  color: var(--tx2); font-size: 13px; font-weight: 600;
+  cursor: pointer; backdrop-filter: blur(12px);
+  transition: all 0.22s; position: relative; overflow: hidden;
+}
+.pill::before {
+  content: ''; position: absolute; inset: 0; border-radius: inherit;
+  background: linear-gradient(135deg, var(--p1), var(--p3));
+  opacity: 0; transition: opacity 0.22s;
+}
+.pill:hover { color: #fff; border-color: transparent; transform: translateY(-2px); box-shadow: 0 5px 22px var(--glow-p); }
+.pill:hover::before { opacity: 1; }
+.pill > * { position: relative; z-index: 1; }
+
+/* ═══════════════════════════════════════════════════════════
+   RIGHT PANEL
+═══════════════════════════════════════════════════════════ */
+.rpanel { grid-column: 2; grid-row: 2/6; display: flex; flex-direction: column; gap: 14px; }
+
+/* Quick Access Grid */
+.qgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.qitem {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  padding: 18px 8px;
+  border-radius: 18px;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-base);
+  text-decoration: none; color: var(--tx);
+  font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+  transition: all 0.28s cubic-bezier(0.34,1.56,0.64,1);
+  position: relative; overflow: hidden;
+  backdrop-filter: blur(16px);
+}
+.qitem::after {
+  content: ''; position: absolute; inset: 0;
+  background: var(--qg, linear-gradient(135deg, var(--p1), var(--p3)));
+  opacity: 0; transition: opacity 0.22s;
+}
+.qitem:hover { border-color: transparent; color: #fff; transform: scale(1.06); box-shadow: 0 8px 28px rgba(0,0,0,0.28); }
+.qitem:hover::after { opacity: 1; }
+.qitem span { position: relative; z-index: 1; }
+.q-ico {
+  width: 44px; height: 44px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; position: relative; z-index: 1;
+  transition: transform 0.22s;
+}
+.qitem:hover .q-ico { transform: scale(1.15) rotate(-8deg); }
+.yt { background: rgba(255,60,60,0.12); --qg: linear-gradient(135deg,#ff4444,#ff8800); }
+.gm { background: rgba(234,67,53,0.12); --qg: linear-gradient(135deg,#ea4335,#fbbc05); }
+.dr { background: rgba(66,133,244,0.12); --qg: linear-gradient(135deg,#4285f4,#34a853); }
+.cl { background: rgba(52,168,83,0.12); --qg: linear-gradient(135deg,#34a853,#0ea5e9); }
+
+/* To-Do */
+.todo-card { flex: 1; display: flex; flex-direction: column; padding: 20px; }
+.todo-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.todo-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; color: var(--tx); }
+.todo-badge {
+  font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--tx2);
+  background: var(--glass-mid); border: 1px solid var(--glass-border2);
+  padding: 2px 10px; border-radius: 99px;
+}
+.todo-list {
+  flex: 1; display: flex; flex-direction: column; gap: 6px;
+  max-height: 220px; overflow-y: auto;
+  scrollbar-width: thin; scrollbar-color: var(--glass-border2) transparent;
+}
+.todo-item {
+  display: flex; align-items: center; gap: 9px;
+  padding: 9px 12px; border-radius: 12px;
+  background: var(--glass-base); border: 1px solid transparent;
+  transition: all 0.18s; animation: slide-in 0.28s ease;
+}
+@keyframes slide-in { from{opacity:0;transform:translateY(-5px)} to{opacity:1;transform:translateY(0)} }
+.todo-item:hover { border-color: var(--glass-border2); background: var(--glass-mid); }
+.todo-item.done { opacity: 0.45; }
+
+.t-circle {
+  width: 18px; height: 18px; border-radius: 50%;
+  border: 1.5px solid var(--glass-border2); cursor: pointer; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; color: #fff; transition: all 0.18s;
+}
+.t-circle.checked {
+  background: linear-gradient(135deg, var(--p1), var(--p2));
+  border-color: transparent; box-shadow: 0 2px 8px var(--glow-p);
+}
+.t-circle.checked::after { content: '✓'; }
+.t-text { flex: 1; font-size: 13px; color: var(--tx); line-height: 1.35; word-break: break-word; }
+.todo-item.done .t-text { text-decoration: line-through; color: var(--tx3); }
+.t-del {
+  width: 20px; height: 20px; border-radius: 6px;
+  background: none; border: none; color: var(--tx3); cursor: pointer;
+  font-size: 11px; display: flex; align-items: center; justify-content: center;
+  opacity: 0; transition: all 0.14s; flex-shrink: 0;
+}
+.todo-item:hover .t-del { opacity: 1; }
+.t-del:hover { color: var(--red); background: rgba(248,113,113,0.1); }
+.todo-add-row { display: flex; gap: 7px; margin-top: 11px; }
+.todo-inp {
+  flex: 1; background: var(--glass-mid); border: 1px solid var(--glass-border);
+  border-radius: 12px; color: var(--tx);
+  font-family: 'Manrope', sans-serif; font-size: 13px;
+  padding: 9px 13px; outline: none; transition: all 0.2s;
+}
+.todo-inp:focus { border-color: var(--p1); box-shadow: 0 0 0 2px var(--glow-p); }
+.todo-inp::placeholder { color: var(--tx3); }
+.todo-add-btn {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--p1), var(--p3));
+  border: none; color: #fff; font-size: 20px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 3px 12px var(--glow-p); flex-shrink: 0;
+  transition: all 0.22s cubic-bezier(0.34,1.56,0.64,1);
+}
+.todo-add-btn:hover { transform: scale(1.18) rotate(90deg); box-shadow: 0 6px 22px var(--glow-m); }
+
+/* ═══════════════════════════════════════════════════════════
+   BOTTOM BAR
+═══════════════════════════════════════════════════════════ */
+.bottom-bar {
+  grid-column: 1;
+  display: flex; align-items: stretch; gap: 14px; flex-wrap: wrap;
+}
+
+/* Wallpaper Card */
+.wp-card {
+  flex: 0 0 auto; min-width: 210px;
+  background: var(--glass-mid);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px; padding: 16px 18px;
+  display: flex; flex-direction: column; gap: 10px;
+  backdrop-filter: var(--blur);
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+.wp-card:hover { border-color: var(--glass-border2); box-shadow: 0 8px 32px rgba(0,0,0,0.20); }
+.wp-card-title {
+  font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700;
+  color: var(--tx); display: flex; align-items: center; gap: 7px;
+}
+.wp-slots { display: flex; gap: 8px; }
+.wp-slot {
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 5px;
+  padding: 12px 8px;
+  border-radius: 13px; border: 1.5px dashed var(--glass-border);
+  background: var(--glass-base); cursor: pointer;
+  transition: all 0.2s; text-align: center; position: relative; overflow: hidden;
+}
+.wp-slot:hover { border-color: var(--p1); background: var(--glow-p); }
+.wp-slot .slot-icon { font-size: 20px; line-height: 1; position: relative; z-index: 1; }
+.wp-slot .slot-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 1px; text-transform: uppercase; color: var(--tx2); position: relative; z-index: 1; }
+.wp-slot .slot-status { font-size: 10px; color: var(--tx3); position: relative; z-index: 1; }
+.wp-slot.has-wp { border-style: solid; border-color: var(--p1); background: var(--glow-p); }
+.wp-slot.has-wp .slot-status { color: var(--p2); }
+.wp-slot.saving { opacity: 0.6; pointer-events: none; }
+.wp-slot-preview { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: 0.22; border-radius: 12px; pointer-events: none; }
+.wp-clear {
+  display: flex; align-items: center; justify-content: center; gap: 5px;
+  background: none; border: none; cursor: pointer;
+  font-family: 'Manrope', sans-serif; font-size: 11px; color: var(--tx3);
+  transition: color 0.15s; padding: 2px 0; width: 100%;
+}
+.wp-clear:hover { color: var(--red); }
+
+/* Theme Card */
+.theme-card {
+  flex: 0 0 auto; min-width: 150px;
+  background: var(--glass-mid); border: 1px solid var(--glass-border);
+  border-radius: 20px; padding: 16px 18px;
+  display: flex; flex-direction: column; gap: 12px;
+  backdrop-filter: var(--blur);
+}
+.theme-title { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; color: var(--tx); }
+.theme-toggle {
+  display: flex;
+  background: var(--glass-base); border: 1.5px solid var(--glass-border);
+  border-radius: 30px; padding: 3px; cursor: pointer;
+}
+.tt-opt {
+  flex: 1; height: 30px; border-radius: 22px;
+  display: flex; align-items: center; justify-content: center; gap: 5px;
+  font-size: 12px; font-weight: 700; color: var(--tx3);
+  transition: all 0.25s; font-family: 'Manrope', sans-serif;
+  user-select: none; cursor: pointer;
+}
+.tt-opt.active {
+  background: linear-gradient(135deg, var(--p1), var(--p3));
+  color: #fff; box-shadow: 0 2px 10px var(--glow-p);
+}
+.theme-hint { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--tx3); text-align: center; }
+
+/* Quote Card */
+.quote-card {
+  flex: 1; min-width: 180px;
+  background: var(--glass-mid); border: 1px solid var(--glass-border);
+  border-radius: 20px; padding: 16px 18px;
+  display: flex; flex-direction: column; gap: 8px;
+  backdrop-filter: var(--blur);
+}
+.quote-card-title { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; color: var(--tx); }
+.quote-text { font-family: 'Manrope', sans-serif; font-size: 13px; color: var(--tx2); line-height: 1.6; font-style: italic; flex: 1; }
+.quote-author { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--tx3); letter-spacing: 1px; text-transform: uppercase; }
+.quote-refresh {
+  align-self: flex-start;
+  background: none; border: 1px solid var(--glass-border); border-radius: 10px;
+  padding: 4px 12px; font-size: 11px; color: var(--tx3); cursor: pointer;
+  font-family: 'Manrope', sans-serif; font-weight: 600; transition: all 0.15s;
+}
+.quote-refresh:hover { border-color: var(--p1); color: var(--p2); background: var(--glow-p); }
+
+/* ═══════════════════════════════════════════════════════════
+   MODALS
+═══════════════════════════════════════════════════════════ */
+.overlay {
+  display: none; position: fixed; inset: 0; z-index: 800;
+  background: rgba(0,0,0,0.72); backdrop-filter: blur(8px);
+  align-items: center; justify-content: center; padding: 20px;
+}
+.overlay.open { display: flex; }
+.modal {
+  background: var(--bg2); border: 1px solid var(--glass-border2);
+  border-radius: 24px; padding: 28px;
+  width: 100%; max-width: 400px;
+  display: flex; flex-direction: column; gap: 13px;
+  animation: pop 0.28s cubic-bezier(0.34,1.56,0.64,1);
+  box-shadow: 0 28px 70px rgba(0,0,0,0.6);
+  position: relative; overflow: hidden;
+}
+.modal::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--p1), var(--p3), transparent);
+}
+@keyframes pop { from{opacity:0;transform:scale(0.88) translateY(16px)} to{opacity:1;transform:scale(1) translateY(0)} }
+.modal-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 18px; color: var(--tx); }
+.modal-sub { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--tx3); }
+.m-inp {
+  background: var(--glass-mid); border: 1px solid var(--glass-border);
+  border-radius: 12px; color: var(--tx);
+  font-family: 'Manrope', sans-serif; font-size: 14px;
+  padding: 12px 14px; outline: none; width: 100%; transition: all 0.2s;
+}
+.m-inp:focus { border-color: var(--p1); box-shadow: 0 0 0 2px var(--glow-p); }
+.m-inp::placeholder { color: var(--tx3); }
+.emoji-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+.e-btn {
+  width: 36px; height: 36px; border-radius: 10px;
+  border: 1px solid var(--glass-border); background: var(--glass-base);
+  font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: all 0.14s;
+}
+.e-btn:hover, .e-btn.sel { border-color: var(--p1); background: var(--glow-p); transform: scale(1.1); }
+.modal-btns { display: flex; gap: 8px; justify-content: flex-end; padding-top: 2px; }
+.btn-ghost {
+  height: 38px; padding: 0 22px; border-radius: 19px;
+  background: none; border: 1px solid var(--glass-border);
+  color: var(--tx2); font-family: 'Manrope', sans-serif; font-size: 14px; font-weight: 500;
+  cursor: pointer; transition: all 0.18s;
+}
+.btn-ghost:hover { background: var(--glass-mid); color: var(--tx); }
+.btn-prime {
+  height: 38px; padding: 0 24px; border-radius: 19px;
+  background: linear-gradient(135deg, var(--p1), var(--p3));
+  border: none; color: #fff;
+  font-family: 'Manrope', sans-serif; font-size: 14px; font-weight: 700;
+  cursor: pointer; box-shadow: 0 3px 16px var(--glow-p); transition: all 0.2s;
+}
+.btn-prime:hover { transform: translateY(-1px) scale(1.03); box-shadow: 0 6px 24px var(--glow-m); }
+
+.manage-list { display: flex; flex-direction: column; gap: 7px; max-height: 300px; overflow-y: auto; }
+.manage-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; border-radius: 12px;
+  background: var(--glass-base); border: 1px solid var(--glass-border);
+}
+.manage-emoji { font-size: 17px; flex-shrink: 0; }
+.manage-info { flex: 1; min-width: 0; }
+.manage-name { font-size: 14px; color: var(--tx); font-weight: 500; }
+.manage-url { font-size: 11px; color: var(--tx3); font-family: 'JetBrains Mono', monospace; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
+.manage-del {
+  height: 30px; padding: 0 14px; border-radius: 15px;
+  background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.22);
+  color: var(--red); font-size: 13px; font-weight: 500; cursor: pointer; flex-shrink: 0;
+  font-family: 'Manrope', sans-serif; transition: all 0.15s;
+}
+.manage-del:hover { background: rgba(248,113,113,0.25); transform: scale(1.04); }
+.manage-empty { font-size: 14px; color: var(--tx3); font-style: italic; text-align: center; padding: 18px 0; }
+
+/* ═══════════════════════════════════════════════════════════
+   TOAST
+═══════════════════════════════════════════════════════════ */
+.toast {
+  position: fixed; bottom: 28px; left: 50%;
+  transform: translateX(-50%) translateY(70px);
+  background: var(--bg2); border: 1px solid var(--glass-border2);
+  border-radius: 99px; padding: 11px 24px;
+  font-size: 14px; font-weight: 600; color: var(--tx); z-index: 9999;
+  pointer-events: none; box-shadow: 0 8px 32px rgba(0,0,0,0.45);
+  transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+  backdrop-filter: blur(20px);
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+/* ═══════════════════════════════════════════════════════════
+   STAGGER ENTRANCE
+═══════════════════════════════════════════════════════════ */
+.layout > * { animation: rise 0.6s ease both; }
+.topbar      { animation-delay: 0.05s; }
+.clock-wrap  { animation-delay: 0.12s; }
+.rpanel      { animation-delay: 0.16s; }
+.search-wrap { animation-delay: 0.22s; }
+.links-wrap  { animation-delay: 0.28s; }
+.bottom-bar  { animation-delay: 0.35s; }
+@keyframes rise {
+  from { opacity: 0; transform: translateY(22px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   FLOATING CARD DELAYS (applied via float-card animation on .card)
+═══════════════════════════════════════════════════════════ */
+.rpanel > .card:nth-child(1) { --float-dur: 8s;  --float-del: 0s;  --float-y: -5px; }
+.rpanel > .card:nth-child(2) { --float-dur: 10s; --float-del: -3s; --float-y: -4px; }
+
+/* ═══════════════════════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════════════════════ */
+@media (max-width: 900px) {
+  .layout {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+    padding: 16px;
+    gap: 14px;
+  }
+  .clock-wrap  { grid-column: 1; }
+  .search-wrap { grid-column: 1; }
+  .links-wrap  { grid-column: 1; }
+  .rpanel { grid-column: 1; grid-row: auto; }
+  .bottom-bar  { grid-column: 1; }
+  .clock-time  { font-size: 64px; }
+  .greeting-line { font-size: 18px; }
+  .clock-wrap { flex-direction: column; }
+  .focus-inline { align-self: stretch; flex-direction: row; min-width: unset; }
+}
+@media (max-width: 500px) {
+  .clock-time { font-size: 48px; }
+  .bottom-bar { flex-direction: column; }
+  .wp-card, .theme-card, .quote-card { min-width: unset; width: 100%; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════ CURSOR GLOW ═══════════ -->
+<div id="cursor-glow"></div>
+
+<!-- ═══════════ AMBIENT BG ═══════════ -->
+<div class="ambient">
+  <div class="orb o1"></div>
+  <div class="orb o2"></div>
+  <div class="orb o3"></div>
+  <div class="orb o4"></div>
+</div>
+<canvas id="star-canvas"></canvas>
+<div class="grain"></div>
+
+<!-- ═══════════ WALLPAPER ═══════════ -->
+<div class="wp-layer" id="wp-day"></div>
+<div class="wp-layer" id="wp-night"></div>
+<div class="wp-dim"   id="wp-dim"></div>
+
+<!-- ═══════════ FILE INPUTS ═══════════ -->
+<input type="file" id="inp-day"   accept="image/*" style="display:none">
+<input type="file" id="inp-night" accept="image/*" style="display:none">
+
+<!-- ═══════════════════════════════════════════════════════════
+     MAIN LAYOUT
+═══════════════════════════════════════════════════════════ -->
+<div class="layout">
+
+  <!-- ── TOPBAR ── -->
+  <div class="topbar">
+    <div class="brand">✦ My Space</div>
+    <div class="topbar-right">
+      <div class="db-badge" id="db-badge">
+        <div class="db-dot"></div>
+        <span id="db-status-text">CONNECTING…</span>
+      </div>
+      <div class="status-badge" id="wp-status" style="display:none">
+        <div class="status-dot"></div>
+        <span id="wp-status-label">Wallpaper</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── CLOCK + INLINE FOCUS ── -->
+  <div class="clock-wrap">
+    <div class="clock-main">
+      <div class="clock-time"  id="clock-time">00:00</div>
+      <div class="clock-date"  id="clock-date">—</div>
+      <div class="greeting-line" id="greeting">Good evening, <strong>Om ✦</strong></div>
+      <div class="greeting-sub"  id="greeting-sub">Perfect night for deep focus.</div>
+    </div>
+
+    <!-- Inline Pomodoro -->
+    <div class="focus-inline">
+      <div class="focus-label-title">⏱ Focus</div>
+      <div class="focus-time" id="focus-display">25:00</div>
+      <div class="focus-mode" id="focus-label">Pomodoro</div>
+      <div class="focus-btns">
+        <button class="f-btn f-go"  id="focus-start-btn" onclick="focusToggle()">Start</button>
+        <button class="f-btn f-rst" onclick="focusReset()">Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── RIGHT PANEL ── -->
+  <div class="rpanel">
+    <!-- Quick Access -->
+    <div class="card" style="padding:20px; --float-dur:8s; --float-del:0s; --float-y:-5px;">
+      <div class="sec-label">Quick Access</div>
+      <div class="qgrid">
+        <a class="qitem yt" href="https://youtube.com" target="_blank">
+          <div class="q-ico">▶️</div><span>YouTube</span>
+        </a>
+        <a class="qitem gm" href="https://mail.google.com" target="_blank">
+          <div class="q-ico">📧</div><span>Gmail</span>
+        </a>
+        <a class="qitem dr" href="https://drive.google.com" target="_blank">
+          <div class="q-ico">💾</div><span>Drive</span>
+        </a>
+        <a class="qitem cl" href="https://calendar.google.com" target="_blank">
+          <div class="q-ico">📅</div><span>Calendar</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- To-Do -->
+    <div class="card todo-card" style="--float-dur:11s; --float-del:-4s; --float-y:-4px;">
+      <div class="todo-head">
+        <div class="todo-title">✦ To-Do</div>
+        <span class="todo-badge" id="todo-count">0 / 0</span>
+      </div>
+      <div class="todo-list" id="todo-list"></div>
+      <div class="todo-add-row">
+        <input class="todo-inp" id="todo-inp" placeholder="Add a task…" onkeydown="if(event.key==='Enter') addTodo()">
+        <button class="todo-add-btn" type="button" onclick="addTodo()">+</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SEARCH ── -->
+  <div class="search-wrap">
+    <div class="search-outer" id="search-outer">
+      <div class="search-box">
+        <div class="search-icon">✦</div>
+        <input type="text" id="searchInput"
+          placeholder="Search anything, or paste a URL…"
+          onkeydown="if(event.key==='Enter') doSearch()"
+          onfocus="document.getElementById('search-outer').classList.add('focused')"
+          onblur="document.getElementById('search-outer').classList.remove('focused')">
+        <button class="search-go" type="button" onclick="doSearch()">Search</button>
+      </div>
+    </div>
+    <div class="engines">
+      <span class="eng-label">via</span>
+      <a class="eng on" id="eng-google"  onclick="setEng('google','https://google.com/search?q=')">🌐 Google</a>
+      <a class="eng"    id="eng-youtube" onclick="setEng('youtube','https://youtube.com/results?search_query=')">▶️ YouTube</a>
+      <a class="eng"    id="eng-reddit"  onclick="setEng('reddit','https://reddit.com/search/?q=')">💬 Reddit</a>
+      <a class="eng"    id="eng-wiki"    onclick="setEng('wiki','https://en.wikipedia.org/w/index.php?search=')">📖 Wiki</a>
+    </div>
+  </div>
+
+  <!-- ── MY LINKS ── -->
+  <div class="links-wrap">
+    <div class="sec-label">My Links</div>
+    <div class="links-grid" id="links-grid"></div>
+    <p class="link-empty" id="link-empty">No links yet — add your first ✦</p>
+    <div class="links-actions">
+      <button class="add-btn" type="button" onclick="openAdd()">＋ Add Link</button>
+      <button class="pill"    type="button" onclick="openManage()">
+        <span>⚙️</span><span>Manage</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ── BOTTOM BAR ── -->
+  <div class="bottom-bar">
+    <!-- Wallpaper -->
+    <div class="wp-card">
+      <div class="wp-card-title">🖼️ Wallpaper</div>
+      <div class="wp-slots">
+        <div class="wp-slot" id="slot-day" onclick="handleDaySlotClick()">
+          <div class="wp-slot-preview" id="slot-day-preview"></div>
+          <div class="slot-icon">☀️</div>
+          <div class="slot-label">Day</div>
+          <div class="slot-status" id="day-status-slot">Tap to set</div>
+        </div>
+        <div class="wp-slot" id="slot-night" onclick="handleNightSlotClick()">
+          <div class="wp-slot-preview" id="slot-night-preview"></div>
+          <div class="slot-icon">🌙</div>
+          <div class="slot-label">Night</div>
+          <div class="slot-status" id="night-status-slot">Tap to set</div>
+        </div>
+      </div>
+      <button class="wp-clear" id="btn-clear" type="button">🗑 Clear all</button>
+    </div>
+
+    <!-- Appearance -->
+    <div class="theme-card">
+      <div class="theme-title">Appearance</div>
+      <div class="theme-toggle">
+        <div class="tt-opt active" id="tt-dark"  onclick="setTheme(true)">🌙 Dark</div>
+        <div class="tt-opt"        id="tt-light" onclick="setTheme(false)">☀️ Light</div>
+      </div>
+      <div class="theme-hint" id="theme-wp-hint">auto-matches theme</div>
+    </div>
+
+    <!-- Quote -->
+    <div class="quote-card">
+      <div class="quote-card-title">💬 Daily Quote</div>
+      <div class="quote-text"   id="quote-text">…</div>
+      <div class="quote-author" id="quote-author">—</div>
+      <button class="quote-refresh" onclick="nextQuote()">↻ New Quote</button>
+    </div>
+  </div>
+
+</div><!-- /layout -->
+
+<!-- ═══════════ ADD LINK MODAL ═══════════ -->
+<div class="overlay" id="add-modal">
+  <div class="modal">
+    <div class="modal-title">Add a Link</div>
+    <input class="m-inp" id="sc-name"  placeholder="Name (e.g. LinkedIn)">
+    <input class="m-inp" id="sc-url"   placeholder="URL (e.g. https://linkedin.com)">
+    <div class="modal-sub">Pick an icon</div>
+    <div class="emoji-grid" id="emoji-grid"></div>
+    <input class="m-inp" id="sc-emoji" placeholder="Or type any emoji…" style="font-size:20px;text-align:center">
+    <div class="modal-btns">
+      <button class="btn-ghost" type="button" onclick="closeAdd()">Cancel</button>
+      <button class="btn-prime" type="button" onclick="saveLink()">Save ✦</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ MANAGE LINKS MODAL ═══════════ -->
+<div class="overlay" id="manage-modal">
+  <div class="modal">
+    <div class="modal-title">Manage Links</div>
+    <div class="manage-list" id="manage-list"></div>
+    <div class="modal-btns">
+      <button class="btn-prime" type="button" onclick="closeManage()">Done</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════════════════════════════ -->
+<script>
+'use strict';
+
+/* ══════════════════════════════════════════════════
+   CURSOR GLOW
+══════════════════════════════════════════════════ */
+const cursorGlow = document.getElementById('cursor-glow');
+let mouseX = 0, mouseY = 0, glowX = 0, glowY = 0;
+document.addEventListener('mousemove', e => { mouseX = e.clientX; mouseY = e.clientY; });
+function animateGlow() {
+  glowX += (mouseX - glowX) * 0.10;
+  glowY += (mouseY - glowY) * 0.10;
+  cursorGlow.style.left = glowX + 'px';
+  cursorGlow.style.top  = glowY + 'px';
+  requestAnimationFrame(animateGlow);
+}
+animateGlow();
+
+/* ══════════════════════════════════════════════════
+   STAR / PARTICLE CANVAS
+══════════════════════════════════════════════════ */
+(function() {
+  const canvas = document.getElementById('star-canvas');
+  const ctx    = canvas.getContext('2d');
+  let W, H, stars = [];
+  const COUNT = 120;
+
+  function resize() {
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+  function mkStar() {
+    return {
+      x: Math.random() * W,
+      y: Math.random() * H,
+      r: Math.random() * 1.4 + 0.3,
+      a: Math.random(),
+      speed: Math.random() * 0.004 + 0.002,
+      phase: Math.random() * Math.PI * 2
+    };
+  }
+  function init() {
+    resize();
+    stars = Array.from({ length: COUNT }, mkStar);
+  }
+  function draw(t) {
+    ctx.clearRect(0, 0, W, H);
+    stars.forEach(s => {
+      const alpha = 0.25 + 0.55 * (0.5 + 0.5 * Math.sin(t * s.speed * 1000 + s.phase));
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(200,185,255,${alpha * s.a})`;
+      ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+  window.addEventListener('resize', resize);
+  init();
+  requestAnimationFrame(draw);
+})();
+
+/* ══════════════════════════════════════════════════
+   PARALLAX WALLPAPER
+══════════════════════════════════════════════════ */
+const wpDayEl   = document.getElementById('wp-day');
+const wpNightEl = document.getElementById('wp-night');
+document.addEventListener('mousemove', e => {
+  const xPct = (e.clientX / window.innerWidth  - 0.5) * 12;
+  const yPct = (e.clientY / window.innerHeight - 0.5) * 8;
+  const t = `translate(${xPct}px, ${yPct}px) scale(1.04)`;
+  wpDayEl.style.transform   = t;
+  wpNightEl.style.transform = t;
+});
+
+/* ══════════════════════════════════════════════════
+   API
+══════════════════════════════════════════════════ */
+const API = {
+  async get(path) {
+    const r = await fetch('/api/' + path);
+    if (!r.ok) throw new Error(r.statusText);
+    return r.json();
+  },
+  async post(path, body) {
+    const r = await fetch('/api/' + path, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    if (!r.ok) throw new Error(r.statusText);
+    return r.json();
+  },
+  async del(path) {
+    const r = await fetch('/api/' + path, { method: 'DELETE' });
+    if (!r.ok) throw new Error(r.statusText);
+    return r.json();
+  }
+};
+
+/* ══════════════════════════════════════════════════
+   STATE
+══════════════════════════════════════════════════ */
+let links = [], todos = [], isDark = true;
+let dayUrl = null, nightUrl = null, wpPreview = null;
+let backendOk = false;
+
+/* ══════════════════════════════════════════════════
+   BOOT
+══════════════════════════════════════════════════ */
+async function boot() {
+  setDbStatus('connecting');
+  try {
+    const settings = await API.get('settings');
+    isDark = settings.theme !== 'light';
+    backendOk = true;
+    setDbStatus('online');
+    links = (await API.get('links')).links || [];
+    todos = (await API.get('todos')).todos || [];
+    const wps = await API.get('wallpapers');
+    dayUrl   = wps.day   || null;
+    nightUrl = wps.night || null;
+  } catch(e) {
+    console.warn('Backend offline, using localStorage:', e);
+    setDbStatus('offline');
+    isDark = localStorage.getItem('ms_theme') !== 'light';
+    try { links = JSON.parse(localStorage.getItem('ms_links') || '[]'); } catch{}
+    try { todos = JSON.parse(localStorage.getItem('ms_todos') || '[]'); } catch{}
+  }
+  applyThemeDOM(isDark);
+  renderLinks();
+  renderTodos();
+  applyWallpaperByContext();
+  updateWpSlots();
+  tick();
+  setInterval(tick, 30000);
+  setInterval(tick, 1000); // update seconds for focus timer
+  focusRender();
+  showQuote();
+}
+
+function setDbStatus(state) {
+  const badge = document.getElementById('db-badge');
+  const text  = document.getElementById('db-status-text');
+  badge.classList.toggle('offline', state === 'offline');
+  text.textContent = state === 'online' ? 'DB ONLINE' : state === 'offline' ? 'OFFLINE MODE' : 'CONNECTING…';
+}
+
+/* ══════════════════════════════════════════════════
+   CLOCK & GREETING
+══════════════════════════════════════════════════ */
+const DAYS   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+const GREET_SUBS = {
+  night:     ['Perfect night for deep focus.', 'The quiet hours belong to you.', 'Stars are out. So is your potential.'],
+  morning:   ['Morning energy. Let\'s build something great.', 'Fresh day, clear mind.', 'Rise and make it count.'],
+  afternoon: ['Afternoon momentum. Keep the streak alive.', 'Halfway through — push further.', 'Focused afternoons lead to great evenings.'],
+  evening:   ['Evening mode. Wind down or go deep.', 'The best ideas come at dusk.', 'One last push before the night.']
+};
+
+function getPeriod(hr) {
+  if (hr < 5)  return 'night';
+  if (hr < 12) return 'morning';
+  if (hr < 17) return 'afternoon';
+  return 'evening';
+}
+
+function tick() {
+  const now = new Date();
+  document.getElementById('clock-time').textContent =
+    String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+  document.getElementById('clock-date').textContent =
+    DAYS[now.getDay()] + '   ·   ' + now.getDate() + ' ' + MONTHS[now.getMonth()] + ' ' + now.getFullYear();
+
+  const hr = now.getHours();
+  const period = getPeriod(hr);
+  const greetWord = { night:'Good night', morning:'Good morning', afternoon:'Good afternoon', evening:'Good evening' }[period];
+  document.getElementById('greeting').innerHTML = greetWord + ', <strong>Om ✦</strong>';
+
+  // Sub-greeting: change daily based on day-of-year
+  const subs = GREET_SUBS[period];
+  const dayOfYear = Math.floor((now - new Date(now.getFullYear(),0,0)) / 86400000);
+  document.getElementById('greeting-sub').textContent = subs[dayOfYear % subs.length];
+
+  if (!wpPreview) applyWallpaperByContext();
+}
+
+/* ══════════════════════════════════════════════════
+   THEME
+══════════════════════════════════════════════════ */
+function applyThemeDOM(dark) {
+  document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+  document.getElementById('tt-dark').classList.toggle('active', dark);
+  document.getElementById('tt-light').classList.toggle('active', !dark);
+}
+
+async function setTheme(dark) {
+  isDark = dark;
+  applyThemeDOM(dark);
+  try { await API.post('settings', { theme: dark ? 'dark' : 'light' }); }
+  catch { localStorage.setItem('ms_theme', dark ? 'dark' : 'light'); }
+  if (dark) {
+    if (nightUrl)    { wpPreview = 'night'; updateThemeHint('🌙 Night wallpaper'); }
+    else if (dayUrl) { wpPreview = 'day';   updateThemeHint('☀️ Day wallpaper (fallback)'); }
+    else             { wpPreview = null;    updateThemeHint('no wallpaper set'); }
+  } else {
+    if (dayUrl)       { wpPreview = 'day';   updateThemeHint('☀️ Day wallpaper'); }
+    else if (nightUrl){ wpPreview = 'night'; updateThemeHint('🌙 Night wallpaper (fallback)'); }
+    else              { wpPreview = null;    updateThemeHint('no wallpaper set'); }
+  }
+  applyWallpaperByContext();
+  toast((dark ? '🌙 Dark' : '☀️ Light') + ' mode activated');
+}
+function updateThemeHint(msg) {
+  const el = document.getElementById('theme-wp-hint');
+  el.textContent = msg;
+  setTimeout(() => { el.textContent = 'auto-matches theme'; }, 2800);
+}
+
+/* ══════════════════════════════════════════════════
+   WALLPAPER
+══════════════════════════════════════════════════ */
+const wpDimEl    = document.getElementById('wp-dim');
+const wpStatusEl = document.getElementById('wp-status');
+const wpStatusLb = document.getElementById('wp-status-label');
+
+function applyWallpaperByContext() {
+  if (dayUrl)   wpDayEl.style.backgroundImage   = `url(${dayUrl})`;
+  if (nightUrl) wpNightEl.style.backgroundImage = `url(${nightUrl})`;
+  const mode = wpPreview !== null ? wpPreview : (isDark ? 'night' : 'day');
+  let showDay = false, showNight = false, label = '';
+  if (mode === 'day') {
+    if (dayUrl)        { showDay   = true; label = '☀️ Day'; }
+    else if (nightUrl) { showNight = true; label = '🌙 Fallback'; }
+  } else {
+    if (nightUrl)      { showNight = true; label = '🌙 Night'; }
+    else if (dayUrl)   { showDay   = true; label = '☀️ Fallback'; }
+  }
+  wpDayEl.classList.toggle('on',   showDay);
+  wpNightEl.classList.toggle('on', showNight);
+  const hasWp = showDay || showNight;
+  wpDimEl.classList.toggle('on', hasWp);
+  wpStatusEl.style.display = hasWp ? 'inline-flex' : 'none';
+  if (hasWp) wpStatusLb.textContent = label;
+}
+
+function updateWpSlots() {
+  const d = !!dayUrl, n = !!nightUrl;
+  document.getElementById('day-status-slot').textContent   = d ? '✓ Saved' : 'Tap to set';
+  document.getElementById('night-status-slot').textContent = n ? '✓ Saved' : 'Tap to set';
+  document.getElementById('slot-day').classList.toggle('has-wp', d);
+  document.getElementById('slot-night').classList.toggle('has-wp', n);
+  document.getElementById('slot-day-preview').style.backgroundImage   = d ? `url(${dayUrl})`   : '';
+  document.getElementById('slot-night-preview').style.backgroundImage = n ? `url(${nightUrl})` : '';
+}
+
+function handleDaySlotClick() {
+  if (dayUrl) { wpPreview = 'day'; applyWallpaperByContext(); toast('☀️ Day wallpaper active'); }
+  else        { document.getElementById('inp-day').click(); }
+}
+function handleNightSlotClick() {
+  if (nightUrl) { wpPreview = 'night'; applyWallpaperByContext(); toast('🌙 Night wallpaper active'); }
+  else          { document.getElementById('inp-night').click(); }
+}
+function setSlotSaving(slot, saving) {
+  document.getElementById('slot-' + slot).classList.toggle('saving', saving);
+  document.getElementById(slot + '-status-slot').textContent = saving ? '⏳ Saving…' : '✓ Saved';
+}
+function setupFileInput(inputId, slot) {
+  document.getElementById(inputId).addEventListener('change', async function() {
+    const file = this.files[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = async function(e) {
+      const dataUrl = e.target.result;
+      setSlotSaving(slot, true);
+      try {
+        await API.post('wallpapers/' + slot, { dataUrl });
+        if (slot === 'day') dayUrl = dataUrl; else nightUrl = dataUrl;
+        wpPreview = slot;
+        applyWallpaperByContext(); updateWpSlots();
+        toast((slot === 'day' ? '☀️ Day' : '🌙 Night') + ' wallpaper saved!');
+      } catch(err) {
+        if (slot === 'day') dayUrl = dataUrl; else nightUrl = dataUrl;
+        wpPreview = slot;
+        applyWallpaperByContext(); updateWpSlots();
+        toast('⚠️ Saved locally (server offline)');
+      } finally {
+        setSlotSaving(slot, false);
+      }
+    };
+    reader.readAsDataURL(file);
+    this.value = '';
+  });
+}
+setupFileInput('inp-day',   'day');
+setupFileInput('inp-night', 'night');
+
+document.getElementById('btn-clear').addEventListener('click', async function() {
+  try { await API.del('wallpapers'); } catch {}
+  dayUrl = null; nightUrl = null;
+  wpDayEl.style.backgroundImage = wpNightEl.style.backgroundImage = '';
+  wpPreview = null;
+  applyWallpaperByContext(); updateWpSlots();
+  toast('🗑 Wallpapers cleared');
+});
+
+/* ══════════════════════════════════════════════════
+   SEARCH
+══════════════════════════════════════════════════ */
+let searchEng = { name: 'google', url: 'https://google.com/search?q=' };
+function setEng(name, url) {
+  searchEng = { name, url };
+  document.querySelectorAll('.eng').forEach(e => e.classList.remove('on'));
+  document.getElementById('eng-' + name).classList.add('on');
+}
+function doSearch() {
+  const q = document.getElementById('searchInput').value.trim();
+  if (!q) return;
+  window.open(q.startsWith('http') ? q : searchEng.url + encodeURIComponent(q), '_blank');
+}
+
+/* ══════════════════════════════════════════════════
+   LINKS
+══════════════════════════════════════════════════ */
+function renderLinks() {
+  const grid  = document.getElementById('links-grid');
+  const empty = document.getElementById('link-empty');
+  grid.innerHTML = '';
+  if (!links.length) { empty.classList.add('show'); return; }
+  empty.classList.remove('show');
+  links.forEach(function(lk, i) {
+    const chip = document.createElement('div');
+    chip.className = 'chip';
+    chip.style.animationDelay = (i * 0.045) + 's';
+    chip.innerHTML = `<div class="chip-icon">${lk.emoji}</div><span class="chip-name">${lk.name}</span><button class="chip-del" type="button">✕</button>`;
+    chip.querySelector('.chip-del').addEventListener('click', e => { e.stopPropagation(); removeLink(i); });
+    chip.addEventListener('click', () => window.open(lk.url, '_blank'));
+    grid.appendChild(chip);
+  });
+}
+async function removeLink(i) {
+  const id = links[i].id;
+  links.splice(i, 1); renderLinks(); renderManageList();
+  try { await API.del('links/' + id); }
+  catch { localStorage.setItem('ms_links', JSON.stringify(links)); }
+  toast('Link removed');
+}
+const EMOJIS = ['🔗','💼','🧩','🐙','📝','🎵','📚','🎬','💡','🛠️','📊','🌐','⚡','🎯','🔥','💎','🚀','🎮','📷','🏆','🌸','🎨','🍕','☕','🌿','🎓','💻','🔑','🎪'];
+let selEmoji = '🔗';
+function openAdd() {
+  selEmoji = '🔗';
+  ['sc-name','sc-url','sc-emoji'].forEach(id => document.getElementById(id).value = '');
+  const grid = document.getElementById('emoji-grid');
+  grid.innerHTML = '';
+  EMOJIS.forEach(em => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'e-btn' + (em === selEmoji ? ' sel' : '');
+    btn.textContent = em;
+    btn.addEventListener('click', () => {
+      selEmoji = em;
+      grid.querySelectorAll('.e-btn').forEach(b => b.classList.remove('sel'));
+      btn.classList.add('sel');
+    });
+    grid.appendChild(btn);
+  });
+  document.getElementById('add-modal').classList.add('open');
+  setTimeout(() => document.getElementById('sc-name').focus(), 80);
+}
+function closeAdd()    { document.getElementById('add-modal').classList.remove('open'); }
+function openManage()  { renderManageList(); document.getElementById('manage-modal').classList.add('open'); }
+function closeManage() { document.getElementById('manage-modal').classList.remove('open'); }
+async function saveLink() {
+  const name   = document.getElementById('sc-name').value.trim();
+  let   url    = document.getElementById('sc-url').value.trim();
+  const custom = document.getElementById('sc-emoji').value.trim();
+  if (!name || !url) { toast('⚠️ Fill in name & URL'); return; }
+  if (!url.startsWith('http')) url = 'https://' + url;
+  const link = { name, url, emoji: custom || selEmoji };
+  try { const res = await API.post('links', link); link.id = res.id; }
+  catch { link.id = Date.now().toString(); const s = JSON.parse(localStorage.getItem('ms_links')||'[]'); s.push(link); localStorage.setItem('ms_links', JSON.stringify(s)); }
+  links.push(link); renderLinks(); closeAdd(); toast('✦ Link saved!');
+}
+function renderManageList() {
+  const list = document.getElementById('manage-list');
+  list.innerHTML = '';
+  if (!links.length) { list.innerHTML = '<div class="manage-empty">No links yet</div>'; return; }
+  links.forEach((lk, i) => {
+    const row = document.createElement('div');
+    row.className = 'manage-row';
+    row.innerHTML = `<div class="manage-emoji">${lk.emoji}</div><div class="manage-info"><div class="manage-name">${lk.name}</div><div class="manage-url">${lk.url}</div></div>`;
+    const del = document.createElement('button');
+    del.className = 'manage-del'; del.type = 'button'; del.textContent = 'Remove';
+    del.addEventListener('click', () => removeLink(i));
+    row.appendChild(del); list.appendChild(row);
+  });
+}
+document.getElementById('add-modal').addEventListener('click',    e => { if (e.target === e.currentTarget) closeAdd(); });
+document.getElementById('manage-modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeManage(); });
+
+/* ══════════════════════════════════════════════════
+   TO-DO
+══════════════════════════════════════════════════ */
+function renderTodos() {
+  const list = document.getElementById('todo-list');
+  list.innerHTML = '';
+  const done = todos.filter(t => t.done).length;
+  document.getElementById('todo-count').textContent = done + ' / ' + todos.length;
+  todos.forEach((t, i) => {
+    const el = document.createElement('div');
+    el.className = 'todo-item' + (t.done ? ' done' : '');
+    el.innerHTML = `<div class="t-circle${t.done?' checked':''}"></div><span class="t-text">${t.text}</span><button class="t-del" type="button">✕</button>`;
+    el.querySelector('.t-circle').addEventListener('click', async () => {
+      todos[i].done = !todos[i].done; renderTodos();
+      try { await API.post('todos/' + todos[i].id + '/toggle', {}); }
+      catch { localStorage.setItem('ms_todos', JSON.stringify(todos)); }
+    });
+    el.querySelector('.t-del').addEventListener('click', async () => {
+      const id = todos[i].id; todos.splice(i,1); renderTodos();
+      try { await API.del('todos/' + id); }
+      catch { localStorage.setItem('ms_todos', JSON.stringify(todos)); }
+    });
+    list.appendChild(el);
+  });
+}
+async function addTodo() {
+  const inp  = document.getElementById('todo-inp');
+  const text = inp.value.trim(); if (!text) return;
+  const todo = { text, done: false };
+  try { const res = await API.post('todos', todo); todo.id = res.id; }
+  catch { todo.id = Date.now().toString(); const s = JSON.parse(localStorage.getItem('ms_todos')||'[]'); s.unshift(todo); localStorage.setItem('ms_todos', JSON.stringify(s)); }
+  todos.unshift(todo); renderTodos(); inp.value = '';
+}
+
+/* ══════════════════════════════════════════════════
+   QUOTES
+══════════════════════════════════════════════════ */
+const QUOTES = [
+  {text:"The only way to do great work is to love what you do.", author:"Steve Jobs"},
+  {text:"In the middle of difficulty lies opportunity.", author:"Albert Einstein"},
+  {text:"It does not matter how slowly you go as long as you do not stop.", author:"Confucius"},
+  {text:"Life is what happens when you're busy making other plans.", author:"John Lennon"},
+  {text:"The future belongs to those who believe in the beauty of their dreams.", author:"Eleanor Roosevelt"},
+  {text:"Strive not to be a success, but rather to be of value.", author:"Albert Einstein"},
+  {text:"You miss 100% of the shots you don't take.", author:"Wayne Gretzky"},
+  {text:"Simplicity is the ultimate sophistication.", author:"Leonardo da Vinci"},
+  {text:"Do what you can, with what you have, where you are.", author:"Theodore Roosevelt"},
+  {text:"Be yourself; everyone else is already taken.", author:"Oscar Wilde"},
+  {text:"Build something you're proud of.", author:"Unknown"},
+  {text:"Stay curious. Stay hungry. Stay humble.", author:"Unknown"},
+];
+let quoteIdx = Math.floor(Math.random() * QUOTES.length);
+function showQuote() {
+  const q = QUOTES[quoteIdx];
+  document.getElementById('quote-text').textContent   = '"' + q.text + '"';
+  document.getElementById('quote-author').textContent = '— ' + q.author;
+}
+function nextQuote() { quoteIdx = (quoteIdx + 1) % QUOTES.length; showQuote(); }
+
+/* ══════════════════════════════════════════════════
+   FOCUS TIMER (Pomodoro)
+══════════════════════════════════════════════════ */
+const FOCUS_TOTAL = 25 * 60;
+let focusSecs = FOCUS_TOTAL, focusRunning = false, focusInterval = null;
+
+function focusRender() {
+  const m = Math.floor(focusSecs / 60), s = focusSecs % 60;
+  document.getElementById('focus-display').textContent =
+    String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+  const pct = Math.round(((FOCUS_TOTAL - focusSecs) / FOCUS_TOTAL) * 100);
+  document.getElementById('focus-label').textContent =
+    focusRunning ? 'Focus — ' + pct + '% done' : (focusSecs === FOCUS_TOTAL ? 'Pomodoro' : 'Paused');
+}
+function focusToggle() {
+  if (focusRunning) {
+    clearInterval(focusInterval); focusRunning = false;
+    document.getElementById('focus-start-btn').textContent = 'Resume';
+  } else {
+    if (focusSecs === 0) { focusReset(); return; }
+    focusRunning = true;
+    document.getElementById('focus-start-btn').textContent = 'Pause';
+    focusInterval = setInterval(() => {
+      if (focusSecs > 0) { focusSecs--; focusRender(); }
+      else {
+        clearInterval(focusInterval); focusRunning = false;
+        document.getElementById('focus-start-btn').textContent = 'Start';
+        document.getElementById('focus-label').textContent = '🎉 Done!';
+        toast('🎯 Focus session complete! Time for a break.');
+      }
+    }, 1000);
+  }
+  focusRender();
+}
+function focusReset() {
+  clearInterval(focusInterval); focusRunning = false; focusSecs = FOCUS_TOTAL;
+  document.getElementById('focus-start-btn').textContent = 'Start';
+  focusRender();
+}
+
+/* ══════════════════════════════════════════════════
+   TOAST
+══════════════════════════════════════════════════ */
+let toastTimer;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+/* ══════════════════════════════════════════════════
+   START
+══════════════════════════════════════════════════ */
+boot();
+</script>
+</body>
+</html>
