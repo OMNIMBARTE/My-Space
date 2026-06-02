@@ -16,9 +16,9 @@
   --glass-inset:   rgba(255,255,255,0.04);
 
   /* text */
-  --tx:   #f0f0ff;
-  --tx2:  #9090c0;
-  --tx3:  #484880;
+  --tx:   #e8e8ff;  
+  --tx2:  #a0a0d8;   
+  --tx3:  #5a5a90;   
 
   /* accent palette */
   --p1: #7c5cfc;   /* primary purple */
@@ -53,9 +53,9 @@
   --glass-border:  rgba(124,92,252,0.18);
   --glass-border2: rgba(124,92,252,0.35);
   --glass-inset:   rgba(255,255,255,0.30);
-  --tx:   #0e0824;
-  --tx2:  #4a3880;
-  --tx3:  #8878c0;
+  --tx:   #0e0824;   
+  --tx2:  #3d2d72;   
+  --tx3:  #7a68b8;   
   --glow-p: rgba(124,92,252,0.18);
   --glow-c: rgba(34,211,238,0.10);
   --glow-m: rgba(232,121,249,0.12);
