@@ -913,7 +913,7 @@ body {
   }
   .clock-wrap  { grid-column: 1; }
   .search-wrap { grid-column: 1; }
-  .links-wrap  { grid-column: 1; }
+  .links-wrap  { grid-column: 1; } 
   .rpanel { grid-column: 1; grid-row: auto; }
   .bottom-bar  { grid-column: 1; }
   .clock-time  { font-size: 68px; }
