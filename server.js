@@ -9,7 +9,7 @@ const http    = require('http');
 const app    = express();
 const PORT   = process.env.PORT || 5000;
 const DATA   = path.join(__dirname, 'data', 'user_credentials.json');
-const DATA_db
+const DATA_db = path.join(__dirname, 'data', 'db.json');
 const WP_DIR = path.join(__dirname, 'data', 'wallpapers');
 const SecKey = "Indra Arrow";
 
