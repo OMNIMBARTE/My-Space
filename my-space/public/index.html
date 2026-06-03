@@ -9,6 +9,11 @@
 <link rel="stylesheet" href="style.css">
 
 </head>
+<script>
+if (localStorage.getItem('loggedIn') !== 'true') {
+    window.location.href = '/auth.html';
+}
+</script>
 <body>
 
 <!-- ═══════════ CURSOR GLOW ═══════════ -->
@@ -107,6 +112,12 @@
         <button class="todo-add-btn" type="button" onclick="addTodo()">+</button>
       </div>
     </div>
+
+    <!-- Logged Out-->
+     <div class="">
+      <button onclick="logout()" class="logout-btn">⏻ Logout</button>
+     </div>
+
   </div>
 
   <!-- ── SEARCH ── -->

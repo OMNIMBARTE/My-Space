@@ -70,7 +70,7 @@ Then open [http://localhost:5500](http://localhost:5500) in your browser.
 
 > The port can be overridden with the `PORT` environment variable:
 > ```bash
-> PORT=3000 npm start
+> PORT=5000 npm start
 > ```
 
 ---

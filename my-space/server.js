@@ -6,13 +6,19 @@ const path    = require('path');
 const crypto  = require('crypto');
 
 const app  = express();
-const PORT = process.env.PORT || 5500;
-const DATA = path.join(__dirname, 'data', 'db.json');
+const PORT = process.env.PORT || 5000;
+const DATA = path.join(__dirname, 'data', 'user_credentials.json');
 const WP_DIR = path.join(__dirname, 'data', 'wallpapers');
 
+const SecKey = "Indra Arrow";
+
+
+console.log("Running from:", __dirname);
+console.log("Using DB file:", DATA);
+
 // ── Middleware ──────────────────────────────────────────
-app.use(express.json({ limit: '20mb' }));   // wallpapers can be large base64
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.json({ limit: '20mb' })); 
+app.use(express.static(path.join(__dirname, 'public'), { index: false }));
 
 // ── Ensure dirs exist ───────────────────────────────────
 fs.mkdirSync(path.dirname(DATA), { recursive: true });
@@ -29,8 +35,6 @@ function writeDB(data) {
 function uid() { return crypto.randomBytes(6).toString('hex'); }
 
 // ── Wallpaper file helpers ──────────────────────────────
-// Stored as raw base64 data-URLs in data/wallpapers/{slot}.txt
-// (simple, no extra deps)
 function wpPath(slot) { return path.join(WP_DIR, slot + '.txt'); }
 function readWp(slot) {
   try { return fs.readFileSync(wpPath(slot), 'utf8'); }
@@ -42,6 +46,41 @@ function writeWp(slot, dataUrl) {
 function deleteWp(slot) {
   try { fs.unlinkSync(wpPath(slot)); } catch {}
 }
+
+// ── API: Login/Register ─────────────────────────────────────────
+
+app.post('/api/login', (req, res) => {
+  const { username, password } = req.body;
+
+  const db = readDB();
+  const users = db.users || {};
+
+  console.log("Login attempt:", username);
+  console.log("Users in DB:", Object.keys(users));
+
+  if (
+    !users[username] ||
+    users[username].pass !== Buffer.from(password).toString('base64')
+  ) {
+    return res.status(401).json({ error: 'Invalid credentials' });
+  }
+
+  res.json({ ok: true, username });
+});
+
+app.post('/api/register', (req, res) => {
+
+  const { username, password, secreteKey } = req.body;
+  if(secreteKey != SecKey){
+    return res.status(403).json({ error: 'Invalid secret key' });
+  }
+  const db = readDB();
+  db.users = db.users || {};
+  if (db.users[username]) return res.status(409).json({ error: 'Username taken' });
+  db.users[username] = { pass: Buffer.from(password).toString('base64') };
+  writeDB(db);
+  res.json({ ok: true });
+});
 
 // ── API: Health ─────────────────────────────────────────
 app.get('/api/ping', (_req, res) => res.json({ ok: true }));
@@ -60,12 +99,12 @@ app.post('/api/settings', (req, res) => {
 });
 
 // ── API: Wallpapers ─────────────────────────────────────
-// GET /api/wallpapers          → { day: dataUrl|null, night: dataUrl|null }
+// GET Wallpapers 
 app.get('/api/wallpapers', (_req, res) => {
   res.json({ day: readWp('day'), night: readWp('night') });
 });
 
-// GET /api/wallpapers/:slot    → { slot, dataUrl: … }
+// GET Wallpapers 
 app.get('/api/wallpapers/:slot', (req, res) => {
   const slot = req.params.slot;
   if (!['day','night'].includes(slot))
@@ -74,7 +113,7 @@ app.get('/api/wallpapers/:slot', (req, res) => {
   res.json({ slot, dataUrl });
 });
 
-// POST /api/wallpapers/:slot   body: { dataUrl: "data:image/…;base64,…" }
+// POST Wallpapers   
 app.post('/api/wallpapers/:slot', (req, res) => {
   const slot = req.params.slot;
   if (!['day','night'].includes(slot))
@@ -86,7 +125,7 @@ app.post('/api/wallpapers/:slot', (req, res) => {
   res.json({ ok: true, slot });
 });
 
-// DELETE /api/wallpapers/:slot
+// DELETE Wallpapers
 app.delete('/api/wallpapers/:slot', (req, res) => {
   const slot = req.params.slot;
   if (!['day','night'].includes(slot))
@@ -95,7 +134,7 @@ app.delete('/api/wallpapers/:slot', (req, res) => {
   res.json({ ok: true, slot });
 });
 
-// DELETE /api/wallpapers  → clear both
+// DELETE Wallpapers 
 app.delete('/api/wallpapers', (_req, res) => {
   deleteWp('day');
   deleteWp('night');
@@ -156,8 +195,9 @@ app.delete('/api/todos/:id', (req, res) => {
 });
 
 // ── Fallback: serve index.html ──────────────────────────
-app.get('*', (_req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+app.get('*', (req, res) => {
+  const file = req.path === '/index.html' ? 'index.html' : 'auth.html';
+  res.sendFile(path.join(__dirname, 'public', file));
 });
 
 // ── Start ───────────────────────────────────────────────

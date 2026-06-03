@@ -508,6 +508,16 @@ function toast(msg) {
 }
 
 /* ══════════════════════════════════════════════════
+   LogOut
+══════════════════════════════════════════════════ */
+
+function logout() {
+    localStorage.removeItem('loggedIn');
+    localStorage.removeItem('username');
+    window.location.href = '/auth.html';
+}
+
+/* ══════════════════════════════════════════════════
    START
 ══════════════════════════════════════════════════ */
 boot();

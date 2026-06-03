@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Space — Auth</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=JetBrains+Mono:wght@300;400;500&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:        #060a14;
+    --surface:   rgba(10,16,35,0.72);
+    --border:    rgba(130,100,255,0.18);
+    --border-hi: rgba(160,120,255,0.55);
+    --accent:    #a855f7;
+    --accent2:   #38bdf8;
+    --text:      #e2d9f3;
+    --muted:     #7a6f9a;
+    --danger:    #f87171;
+    --success:   #34d399;
+    --glow:      rgba(168,85,247,0.35);
+    --glow2:     rgba(56,189,248,0.25);
+  }
+
+  html, body {
+    height: 100%;
+    font-family: 'Manrope', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    overflow: hidden;
+  }
+
+  /* ── STARFIELD ── */
+  #star-canvas {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  }
+
+  /* ── AMBIENT ORBS ── */
+  .ambient { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+  .orb {
+    position: absolute; border-radius: 50%;
+    filter: blur(90px); opacity: 0.35;
+    animation: drift 18s ease-in-out infinite alternate;
+  }
+  .o1 { width:500px; height:500px; background:#6d28d9; top:-120px; left:-100px; animation-duration:22s; }
+  .o2 { width:400px; height:400px; background:#0ea5e9; bottom:-100px; right:-80px; animation-duration:18s; animation-delay:-6s; }
+  .o3 { width:300px; height:300px; background:#7c3aed; top:40%; left:55%; animation-duration:15s; animation-delay:-10s; }
+  @keyframes drift { to { transform: translate(40px, 30px) scale(1.08); } }
+
+  .grain {
+    position: fixed; inset: 0; z-index: 1; pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    opacity: 0.55;
+  }
+
+  /* ── CURSOR GLOW ── */
+  #cursor-glow {
+    position: fixed; width: 280px; height: 280px;
+    border-radius: 50%; pointer-events: none; z-index: 2;
+    background: radial-gradient(circle, rgba(168,85,247,0.12) 0%, transparent 70%);
+    transform: translate(-50%, -50%);
+    transition: opacity 0.3s;
+  }
+
+  /* ── LAYOUT ── */
+  .scene {
+    position: relative; z-index: 3;
+    min-height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+  }
+
+  /* ── CARD ── */
+  .auth-card {
+    width: 100%; max-width: 440px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 40px 36px 36px;
+    backdrop-filter: blur(28px) saturate(160%);
+    box-shadow:
+      0 0 0 1px rgba(168,85,247,0.07),
+      0 8px 40px rgba(0,0,0,0.55),
+      0 0 80px rgba(168,85,247,0.08);
+    animation: cardIn 0.7s cubic-bezier(.22,1,.36,1) both;
+  }
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(32px) scale(0.97); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  /* ── BRAND ── */
+  .brand {
+    font-family: 'Orbitron', monospace;
+    font-size: 13px; font-weight: 700;
+    letter-spacing: 0.22em; color: var(--accent);
+    text-transform: uppercase;
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 28px;
+  }
+  .brand-star { font-size: 16px; animation: spin 8s linear infinite; display: inline-block; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── TABS ── */
+  .tab-row {
+    display: flex; gap: 0;
+    background: rgba(255,255,255,0.04);
+    border-radius: 12px;
+    padding: 4px;
+    margin-bottom: 28px;
+  }
+  .tab {
+    flex: 1; padding: 9px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px; font-weight: 500; letter-spacing: 0.1em;
+    color: var(--muted);
+    background: none; border: none; border-radius: 9px;
+    cursor: pointer; transition: all 0.25s;
+    text-transform: uppercase;
+  }
+  .tab.active {
+    background: linear-gradient(135deg, rgba(168,85,247,0.28), rgba(56,189,248,0.16));
+    color: var(--text);
+    box-shadow: 0 0 16px rgba(168,85,247,0.18);
+  }
+
+  /* ── FORM PANELS ── */
+  .panel { display: none; animation: fadeIn 0.3s ease; }
+  .panel.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+  /* ── INPUTS ── */
+  .field { margin-bottom: 14px; }
+  .field-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; letter-spacing: 0.15em;
+    color: var(--muted); text-transform: uppercase;
+    margin-bottom: 6px; display: block;
+  }
+  .inp-wrap { position: relative; }
+  .inp-icon {
+    position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+    font-size: 14px; opacity: 0.5; pointer-events: none;
+  }
+  .inp {
+    width: 100%; padding: 12px 14px 12px 40px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: 'Manrope', sans-serif;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .inp::placeholder { color: var(--muted); }
+  .inp:focus {
+    border-color: var(--border-hi);
+    box-shadow: 0 0 0 3px rgba(168,85,247,0.12), 0 0 20px rgba(168,85,247,0.08);
+  }
+
+  /* ── DIVIDER ── */
+  .divider {
+    display: flex; align-items: center; gap: 12px;
+    margin: 18px 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; color: var(--muted); letter-spacing: 0.1em;
+  }
+  .divider::before, .divider::after {
+    content: ''; flex: 1;
+    height: 1px; background: var(--border);
+  }
+
+  /* ── FACE RECOGNITION BTN ── */
+  .face-btn {
+    width: 100%;
+    padding: 13px;
+    background: rgba(56,189,248,0.08);
+    border: 1px solid rgba(56,189,248,0.28);
+    border-radius: 12px;
+    color: var(--accent2);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    transition: all 0.25s;
+    position: relative; overflow: hidden;
+  }
+  .face-btn::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(56,189,248,0.06), transparent);
+    transform: translateX(-100%);
+    transition: transform 0.5s;
+  }
+  .face-btn:hover::before { transform: translateX(100%); }
+  .face-btn:hover {
+    background: rgba(56,189,248,0.14);
+    border-color: rgba(56,189,248,0.5);
+    box-shadow: 0 0 24px rgba(56,189,248,0.18);
+    transform: translateY(-1px);
+  }
+  .face-icon {
+    width: 28px; height: 28px;
+    border: 1.5px solid var(--accent2);
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    box-shadow: 0 0 10px rgba(56,189,248,0.25);
+  }
+  /* scanning animation on face icon */
+  .face-btn:hover .face-icon::after {
+    content: '';
+    position: absolute;
+    width: 20px; height: 1.5px;
+    background: var(--accent2);
+    animation: scan 1s linear infinite;
+    opacity: 0.8;
+  }
+  @keyframes scan {
+    0%   { transform: translateY(-8px); }
+    100% { transform: translateY(8px); }
+  }
+
+  /* ── SUBMIT BTN ── */
+  .submit-btn {
+    width: 100%; margin-top: 18px;
+    padding: 14px;
+    background: linear-gradient(135deg, #7c3aed, #a855f7);
+    border: none; border-radius: 12px;
+    color: #fff;
+    font-family: 'Orbitron', monospace;
+    font-size: 12px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase;
+    cursor: pointer;
+    position: relative; overflow: hidden;
+    transition: all 0.25s;
+    box-shadow: 0 4px 20px rgba(168,85,247,0.35);
+  }
+  .submit-btn::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.12), transparent);
+  }
+  .submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(168,85,247,0.5);
+  }
+  .submit-btn:active { transform: translateY(0); }
+
+  /* ── ERROR / SUCCESS TOAST ── */
+  .msg {
+    padding: 10px 14px; border-radius: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; letter-spacing: 0.05em;
+    margin-bottom: 14px; display: none;
+  }
+  .msg.err  { background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.3); color: var(--danger); display: block; }
+  .msg.ok   { background: rgba(52,211,153,0.1);  border: 1px solid rgba(52,211,153,0.3);  color: var(--success); display: block; }
+
+  /* ── FOOTER ── */
+  .card-footer {
+    margin-top: 24px; padding-top: 18px;
+    border-top: 1px solid var(--border);
+    font-size: 11px; color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    text-align: center; letter-spacing: 0.05em;
+  }
+
+  /* ── SCAN RING (decorative corner) ── */
+  .corner {
+    position: absolute;
+    width: 14px; height: 14px;
+    border-color: var(--accent); border-style: solid;
+    opacity: 0.5;
+  }
+  .corner-tl { top: -1px; left: -1px; border-width: 2px 0 0 2px; border-radius: 4px 0 0 0; }
+  .corner-tr { top: -1px; right: -1px; border-width: 2px 2px 0 0; border-radius: 0 4px 0 0; }
+  .corner-bl { bottom: -1px; left: -1px; border-width: 0 0 2px 2px; border-radius: 0 0 0 4px; }
+  .corner-br { bottom: -1px; right: -1px; border-width: 0 2px 2px 0; border-radius: 0 0 4px 0; }
+
+  /* password eye toggle */
+  .eye-btn {
+    position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+    background: none; border: none; cursor: pointer;
+    color: var(--muted); font-size: 14px; padding: 2px 4px;
+    transition: color 0.2s;
+  }
+  .eye-btn:hover { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<div id="cursor-glow"></div>
+<div class="ambient">
+  <div class="orb o1"></div>
+  <div class="orb o2"></div>
+  <div class="orb o3"></div>
+</div>
+<canvas id="star-canvas"></canvas>
+<div class="grain"></div>
+
+<div class="scene">
+  <div class="auth-card" style="position:relative;">
+    <!-- corner decorations -->
+    <div class="corner corner-tl"></div>
+    <div class="corner corner-tr"></div>
+    <div class="corner corner-bl"></div>
+    <div class="corner corner-br"></div>
+
+    <div class="brand">
+      <span class="brand-star">✦</span> My Space
+    </div>
+
+    <!-- TABS -->
+    <div class="tab-row">
+      <button class="tab active" id="tab-login"  onclick="switchTab('login')">Login</button>
+      <button class="tab"        id="tab-signup" onclick="switchTab('signup')">Sign Up</button>
+    </div>
+
+    <!-- MESSAGE AREA -->
+    <div class="msg" id="msg-box"></div>
+
+    <!-- ── LOGIN PANEL ── -->
+    <div class="panel active" id="panel-login">
+      <div class="field">
+        <label class="field-label">Username</label>
+        <div class="inp-wrap">
+          <span class="inp-icon">◈</span>
+          <input class="inp" id="login-user" type="text" placeholder="enter username" autocomplete="username">
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">Password</label>
+        <div class="inp-wrap">
+          <span class="inp-icon">⬡</span>
+          <input class="inp" id="login-pass" type="password" placeholder="••••••••" autocomplete="current-password">
+          <button class="eye-btn" type="button" onclick="toggleEye('login-pass', this)">👁</button>
+        </div>
+      </div>
+
+      <button class="submit-btn" onclick="handleLogin()">Access My Space →</button>
+
+      <div class="divider">or</div>
+
+      <button class="face-btn" onclick="handleFaceLogin()">
+        <div class="face-icon" style="position:relative;">🪪</div>
+        <span>Login with Face Recognition</span>
+      </button>
+    </div>
+
+    <!-- ── SIGNUP PANEL ── -->
+    <div class="panel" id="panel-signup">
+      <div class="field">
+        <label class="field-label">Username</label>
+        <div class="inp-wrap">
+          <span class="inp-icon">◈</span>
+          <input class="inp" id="signup-user" type="text" placeholder="choose a username" autocomplete="username">
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">Password</label>
+        <div class="inp-wrap">
+          <span class="inp-icon">⬡</span>
+          <input class="inp" id="signup-pass" type="password" placeholder="min 6 characters" autocomplete="new-password">
+          <button class="eye-btn" type="button" onclick="toggleEye('signup-pass', this)">👁</button>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">Confirm Password</label>
+        <div class="inp-wrap">
+          <span class="inp-icon">⬡</span>
+          <input class="inp" id="signup-confirm" type="password" placeholder="repeat password" autocomplete="new-password">
+          <button class="eye-btn" type="button" onclick="toggleEye('signup-confirm', this)">👁</button>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">Secret Key</label>
+        <div class="inp-wrap">
+            <span class="inp-icon">🔑</span>
+            <input class="inp" id="signup-key" type="password" placeholder="enter secret key">
+        </div>
+      </div>
+      <button class="submit-btn" onclick="handleSignup()">Create Account →</button>
+
+      <div class="divider">or</div>
+
+      <button class="face-btn" onclick="handleFaceSignup()">
+        <div class="face-icon" style="position:relative;">🪪</div>
+        <span>Register Face ID</span>
+      </button>
+    </div>
+
+    <div class="card-footer">
+      ✦ My Space · Local Auth · All data stored on your device
+    </div>
+  </div>
+</div>
+
+<script>
+
+/* ── CURSOR ── */
+const glow = document.getElementById('cursor-glow');
+document.addEventListener('mousemove', e => {
+  glow.style.left = e.clientX + 'px';
+  glow.style.top  = e.clientY + 'px';
+});
+
+/* ── STARS ── */
+const canvas = document.getElementById('star-canvas');
+const ctx = canvas.getContext('2d');
+let stars = [];
+function initStars() {
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+  stars = Array.from({length: 180}, () => ({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height,
+    r: Math.random() * 1.4 + 0.2,
+    a: Math.random(),
+    da: (Math.random() - 0.5) * 0.004,
+  }));
+}
+function drawStars() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  stars.forEach(s => {
+    s.a = Math.max(0.05, Math.min(1, s.a + s.da));
+    if (s.a <= 0.05 || s.a >= 1) s.da *= -1;
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(200,185,255,${s.a})`;
+    ctx.fill();
+  });
+  requestAnimationFrame(drawStars);
+}
+initStars();
+drawStars();
+window.addEventListener('resize', initStars);
+
+/* ── TAB SWITCH ── */
+function switchTab(t) {
+  document.getElementById('panel-login').classList.toggle('active', t === 'login');
+  document.getElementById('panel-signup').classList.toggle('active', t === 'signup');
+  document.getElementById('tab-login').classList.toggle('active', t === 'login');
+  document.getElementById('tab-signup').classList.toggle('active', t === 'signup');
+  clearMsg();
+}
+
+/* ── MESSAGE ── */
+function showMsg(text, type='err') {
+  const el = document.getElementById('msg-box');
+  el.textContent = text;
+  el.className = 'msg ' + type;
+}
+function clearMsg() {
+  const el = document.getElementById('msg-box');
+  el.textContent = '';
+  el.className = 'msg';
+}
+
+/* ── EYE TOGGLE ── */
+function toggleEye(id, btn) {
+  const inp = document.getElementById(id);
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+  btn.textContent = inp.type === 'password' ? '👁' : '🙈';
+}
+
+
+async function handleLogin() {
+  clearMsg();
+
+  const user = document.getElementById('login-user').value.trim();
+  const pass = document.getElementById('login-pass').value;
+
+  if (!user || !pass)
+    return showMsg('⚠ Please fill in all fields.');
+
+  const res = await fetch('/api/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      username: user,
+      password: pass
+    })
+  });
+
+  const data = await res.json();
+
+  if (!res.ok)
+    return showMsg('⚠ ' + data.error);
+
+  localStorage.setItem('loggedIn', 'true');
+  localStorage.setItem('username', user);
+
+  showMsg('✓ Welcome back! Redirecting…', 'ok');
+
+  setTimeout(() => {
+    window.location.href = 'index.html';
+  }, 1200);
+}
+
+async function handleSignup() {
+  clearMsg();
+  const user    = document.getElementById('signup-user').value.trim();
+  const pass    = document.getElementById('signup-pass').value;
+  const confirm = document.getElementById('signup-confirm').value;
+  const key     = document.getElementById('signup-key').value;
+
+  if (!user || !pass || !confirm || !key) return showMsg('⚠ Please fill in all fields.');
+  if (pass.length < 6) return showMsg('⚠ Password must be at least 6 characters.');
+  if (pass !== confirm) return showMsg('⚠ Passwords do not match.');
+  const res = await fetch('/api/register', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+        username: user,
+        password: pass,
+        secreteKey: key,
+    })
+    });
+
+    const data = await res.json();
+
+  if (!res.ok) return showMsg('⚠ ' + data.error);
+  showMsg('✓ Account created! Logging you in…', 'ok');
+  setTimeout(() => { window.location.href = '/index.html'; }, 1200);
+}
+
+/* ── FACE RECOGNITION STUBS ── */
+function handleFaceLogin() {
+  
+  showMsg('Face Recognition triggered (login). Integrate your handler here.', 'ok');
+}
+function handleFaceSignup() {
+  
+  showMsg('Face Recognition triggered (register). Integrate your handler here.', 'ok');
+}
+
+/* ── ENTER KEY ── */
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Enter') return;
+  if (document.getElementById('panel-login').classList.contains('active')) handleLogin();
+  else handleSignup();
+});
+</script>
+</body>
+</html>
