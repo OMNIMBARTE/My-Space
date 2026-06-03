@@ -1,134 +1,179 @@
 # ✦ My Space
 
-A personal browser start page with a Node.js/Express backend for persistent data. Features a glassmorphism UI with dark/light themes, custom wallpapers, quick-access links, a to-do list, multi-engine search, a focus timer, and a daily quote widget.
+A personal browser start-page with a sci-fi dark aesthetic, built on **Node.js + Express**. Features a gated auth system, persistent backend storage, and a fully customisable dashboard — all running locally on your machine.
+
+![My Space Dashboard](Page.png)
 
 ---
 
-## ✨ Features
+## Features
 
-- **Live Clock & Greeting** — Shows real-time clock, date, and a time-aware greeting (Good morning / afternoon / evening, Om ✦)
-- **Quick Links** — Add, manage, and launch your favourite URLs with custom names and emojis; persisted via the backend
-- **To-Do List** — Add tasks, toggle completion, and delete; badge shows live `done / total` count
-- **Multi-Engine Search** — Search Google, YouTube, Reddit, or Wikipedia directly from the page
-- **Custom Wallpapers** — Upload separate wallpapers for day and night themes (stored as base64, server-side)
-- **Dark / Light Theme** — Toggle with automatic wallpaper switching; theme persisted across sessions
-- **Daily Quote** — Curated motivational quotes with a shuffle button
-- **Focus Timer** — Pomodoro-style focus/break timer built in
-- **Animated Background** — Subtle cursor glow and animated star canvas
-- **Offline-friendly JSON DB** — All data (links, todos, settings, wallpapers) is stored locally in `data/db.json` and `data/wallpapers/`
+**Auth System**
+- Login and Sign Up via username & password
+- Secret key gate — only people with the key can register
+- Session stored in `localStorage`; unauthenticated users are redirected to the login page
+- Face Recognition button stub — ready for you to wire up your own implementation
+
+**Dashboard**
+- Live clock with date, time-of-day greeting, and rotating motivational sub-greetings
+- Pomodoro focus timer with start, pause, and reset controls + live progress percentage
+- Search bar supporting Google, YouTube, Reddit, and Wikipedia — also opens direct URLs
+- Custom links grid — add, emoji-pick, and delete your own shortcuts, persisted to the backend
+- To-Do list with add, toggle complete, and delete, synced to the backend
+- Quick Access panel with one-click links to YouTube, Gmail, Drive, and Calendar
+- Daily rotating quote with a refresh button
+- Day / Night wallpaper slots — upload your own images, auto-switches by time of day with parallax mouse effect
+- Dark / Light theme toggle, persisted to the backend
+- DB status badge — shows ONLINE, OFFLINE MODE, or CONNECTING live
+
+**Backend**
+- Express server with a flat JSON file database (`data/user_credentials.json`)
+- Full REST API for settings, links, todos, and wallpapers
+- Offline fallback — all features degrade gracefully to `localStorage` if the server is unreachable
+- Wallpapers stored as base64 data-URLs in `data/wallpapers/`
 
 ---
 
-## 🗂 Project Structure
+## Project Structure
 
 ```
 my-space/
-├── data/
-│   ├── db.json              # JSON database (links, todos, settings)
-│   └── wallpapers/
-│       ├── day.txt          # Day wallpaper (base64 data-URL)
-│       └── night.txt        # Night wallpaper (base64 data-URL)
-├── Images/                  # App icon assets (PNG)
 ├── public/
-│   └── index.html           # Single-page frontend (HTML + CSS + JS)
-├── server.js                # Express backend & REST API
+│   ├── auth.html        # Login / Sign Up page
+│   ├── index.html       # Main dashboard
+│   ├── script.js        # All dashboard logic
+│   └── style.css        # Full styling
+├── data/
+│   ├── user_credentials.json   # DB — users, links, todos, settings
+│   └── wallpapers/
+│       ├── day.txt      # Day wallpaper (base64)
+│       └── night.txt    # Night wallpaper (base64)
+├── Images/              # Quick Access icon images
+├── server.js            # Express server + REST API
 ├── package.json
 └── package-lock.json
 ```
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
-
 - [Node.js](https://nodejs.org/) v16 or higher
-- npm (comes with Node.js)
 
 ### Installation
 
 ```bash
-# Clone the repository
-git clone <your-repo-url>
+# 1. Clone the repo
+git clone https://github.com/your-username/my-space.git
 cd my-space
 
-# Install dependencies
+# 2. Install dependencies
 npm install
+
+# 3. Start the server
+npm start
 ```
 
-### Running the App
+Then open **http://localhost:5000** in your browser.
 
+For development with auto-restart on file changes:
 ```bash
-# Production
-npm start
-
-# Development (auto-restarts on file changes, requires nodemon)
 npm run dev
 ```
 
-Then open [http://localhost:5500](http://localhost:5500) in your browser.
+---
 
-> The port can be overridden with the `PORT` environment variable:
-> ```bash
-> PORT=5000 npm start
-> ```
+## Configuration
+
+### Changing the Secret Key
+
+Open `server.js` and update this line near the top:
+
+```js
+const SecKey = "Indra Arrow";  // ← change to your own secret key
+```
+
+Anyone who wants to register an account must enter this key on the Sign Up page. Keep it private — share it only with people you want to give access.
+
+### Changing the Port
+
+The server defaults to port `5000`. Override it with an environment variable:
+
+```bash
+PORT=3000 npm start
+```
 
 ---
 
-## 🔌 API Reference
-
-All endpoints are under `/api`.
+## API Reference
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
+| `POST` | `/api/register` | Register a new user (requires `secreteKey`) |
+| `POST` | `/api/login` | Login with username & password |
 | `GET` | `/api/ping` | Health check |
-| `GET` | `/api/settings` | Get theme/settings |
-| `POST` | `/api/settings` | Update settings |
-| `GET` | `/api/links` | Get all links |
+| `GET/POST` | `/api/settings` | Get or update theme settings |
+| `GET` | `/api/links` | Get all saved links |
 | `POST` | `/api/links` | Add a new link |
 | `DELETE` | `/api/links/:id` | Delete a link |
 | `GET` | `/api/todos` | Get all todos |
 | `POST` | `/api/todos` | Add a new todo |
 | `POST` | `/api/todos/:id/toggle` | Toggle todo done/undone |
 | `DELETE` | `/api/todos/:id` | Delete a todo |
-| `GET` | `/api/wallpapers` | Get both wallpapers |
-| `GET` | `/api/wallpapers/:slot` | Get `day` or `night` wallpaper |
-| `POST` | `/api/wallpapers/:slot` | Upload a wallpaper (body: `{ dataUrl }`) |
-| `DELETE` | `/api/wallpapers/:slot` | Delete a specific wallpaper |
-| `DELETE` | `/api/wallpapers` | Clear both wallpapers |
+| `GET` | `/api/wallpapers` | Get both wallpaper slots |
+| `GET` | `/api/wallpapers/:slot` | Get day or night wallpaper |
+| `POST` | `/api/wallpapers/:slot` | Upload a wallpaper (base64 dataURL) |
+| `DELETE` | `/api/wallpapers/:slot` | Clear a single wallpaper slot |
+| `DELETE` | `/api/wallpapers` | Clear both wallpaper slots |
 
 ---
 
-## 🛠 Tech Stack
+## How Auth Works
+
+```
+User visits localhost:5000
+        ↓
+Express serves auth.html (index: false disables auto index.html)
+        ↓
+User logs in → localStorage.setItem('loggedIn', 'true')
+        ↓
+Redirected to /index.html
+        ↓
+index.html checks localStorage on load → if not logged in, back to auth
+```
+
+Credentials are stored in `data/user_credentials.json` under a `users` key. Passwords are Base64-encoded. This is suitable for personal/local use — for a public deployment, replace with `bcrypt` hashing.
+
+---
+
+## Tech Stack
 
 | Layer | Technology |
 |-------|-----------|
-| Frontend | Vanilla HTML, CSS, JavaScript |
-| Backend | Node.js + Express |
-| Database | JSON file (`db.json`) |
-| Fonts | Orbitron, Syne, JetBrains Mono, Manrope (Google Fonts) |
+| Runtime | Node.js |
+| Server | Express 4 |
+| Database | JSON flat file |
+| Frontend | Vanilla HTML / CSS / JS |
+| Fonts | Orbitron, JetBrains Mono, Manrope, Syne (Google Fonts) |
 
 ---
 
-## 📦 Dependencies
+## Roadmap / Ideas
 
-| Package | Purpose |
-|---------|---------|
-| `express` | HTTP server and REST API |
-
-No database setup, no ORM, no build step — just Node.js and a single JSON file.
-
----
-
-## 🎨 Customization
-
-- **Name** — Change `Om` in `public/index.html` (search for `Om ✦`) to your own name
-- **Quotes** — Edit the `QUOTES` array in `public/index.html` to add your own
-- **Default theme** — Change `"theme": "dark"` to `"light"` in `data/db.json`
-- **Port** — Set the `PORT` environment variable (default: `5500`)
+- [ ] Replace Base64 password encoding with `bcrypt` hashing
+- [ ] Face recognition login (button stub in `auth.html`)
+- [ ] Multi-user support with per-user data isolation
+- [ ] Draggable / reorderable links grid
+- [ ] Custom Pomodoro timer durations
+- [ ] Notes or journal widget
 
 ---
 
-## 📄 License
+## License
 
-This project is for personal use. Feel free to fork and adapt it for your own start page.
+This project is for personal use. Feel free to fork and customise it for yourself.
+
+---
+
+<p align="center">Built by Om ✦</p>
