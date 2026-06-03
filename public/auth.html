@@ -19,24 +19,21 @@
     --muted:     #7a6f9a;
     --danger:    #f87171;
     --success:   #34d399;
-    --glow:      rgba(168,85,247,0.35);
-    --glow2:     rgba(56,189,248,0.25);
   }
 
+  /* FIX: allow scrolling when card is taller than viewport */
   html, body {
-    height: 100%;
+    min-height: 100%;
     font-family: 'Manrope', sans-serif;
     background: var(--bg);
     color: var(--text);
-    overflow: hidden;
+    overflow-y: auto;   /* was: overflow: hidden — that blocked scroll */
   }
 
-  /* ── STARFIELD ── */
   #star-canvas {
     position: fixed; inset: 0; z-index: 0; pointer-events: none;
   }
 
-  /* ── AMBIENT ORBS ── */
   .ambient { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
   .orb {
     position: absolute; border-radius: 50%;
@@ -54,24 +51,20 @@
     opacity: 0.55;
   }
 
-  /* ── CURSOR GLOW ── */
   #cursor-glow {
     position: fixed; width: 280px; height: 280px;
     border-radius: 50%; pointer-events: none; z-index: 2;
     background: radial-gradient(circle, rgba(168,85,247,0.12) 0%, transparent 70%);
     transform: translate(-50%, -50%);
-    transition: opacity 0.3s;
   }
 
-  /* ── LAYOUT ── */
   .scene {
     position: relative; z-index: 3;
     min-height: 100vh;
     display: flex; align-items: center; justify-content: center;
-    padding: 20px;
+    padding: 24px 20px;
   }
 
-  /* ── CARD ── */
   .auth-card {
     width: 100%; max-width: 440px;
     background: var(--surface);
@@ -90,7 +83,6 @@
     to   { opacity: 1; transform: none; }
   }
 
-  /* ── BRAND ── */
   .brand {
     font-family: 'Orbitron', monospace;
     font-size: 13px; font-weight: 700;
@@ -102,9 +94,8 @@
   .brand-star { font-size: 16px; animation: spin 8s linear infinite; display: inline-block; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* ── TABS ── */
   .tab-row {
-    display: flex; gap: 0;
+    display: flex;
     background: rgba(255,255,255,0.04);
     border-radius: 12px;
     padding: 4px;
@@ -125,12 +116,10 @@
     box-shadow: 0 0 16px rgba(168,85,247,0.18);
   }
 
-  /* ── FORM PANELS ── */
   .panel { display: none; animation: fadeIn 0.3s ease; }
   .panel.active { display: block; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 
-  /* ── INPUTS ── */
   .field { margin-bottom: 14px; }
   .field-label {
     font-family: 'JetBrains Mono', monospace;
@@ -160,22 +149,16 @@
     box-shadow: 0 0 0 3px rgba(168,85,247,0.12), 0 0 20px rgba(168,85,247,0.08);
   }
 
-  /* ── DIVIDER ── */
   .divider {
     display: flex; align-items: center; gap: 12px;
     margin: 18px 0;
     font-family: 'JetBrains Mono', monospace;
     font-size: 10px; color: var(--muted); letter-spacing: 0.1em;
   }
-  .divider::before, .divider::after {
-    content: ''; flex: 1;
-    height: 1px; background: var(--border);
-  }
+  .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
 
-  /* ── FACE RECOGNITION BTN ── */
   .face-btn {
-    width: 100%;
-    padding: 13px;
+    width: 100%; padding: 13px;
     background: rgba(56,189,248,0.08);
     border: 1px solid rgba(56,189,248,0.28);
     border-radius: 12px;
@@ -188,11 +171,9 @@
     position: relative; overflow: hidden;
   }
   .face-btn::before {
-    content: '';
-    position: absolute; inset: 0;
+    content: ''; position: absolute; inset: 0;
     background: linear-gradient(90deg, transparent, rgba(56,189,248,0.06), transparent);
-    transform: translateX(-100%);
-    transition: transform 0.5s;
+    transform: translateX(-100%); transition: transform 0.5s;
   }
   .face-btn:hover::before { transform: translateX(100%); }
   .face-btn:hover {
@@ -201,64 +182,43 @@
     box-shadow: 0 0 24px rgba(56,189,248,0.18);
     transform: translateY(-1px);
   }
+  .face-btn:disabled {
+    opacity: 0.5; cursor: not-allowed; transform: none;
+  }
   .face-icon {
     width: 28px; height: 28px;
-    border: 1.5px solid var(--accent2);
-    border-radius: 6px;
+    border: 1.5px solid var(--accent2); border-radius: 6px;
     display: flex; align-items: center; justify-content: center;
-    font-size: 14px;
-    box-shadow: 0 0 10px rgba(56,189,248,0.25);
-  }
-  /* scanning animation on face icon */
-  .face-btn:hover .face-icon::after {
-    content: '';
-    position: absolute;
-    width: 20px; height: 1.5px;
-    background: var(--accent2);
-    animation: scan 1s linear infinite;
-    opacity: 0.8;
-  }
-  @keyframes scan {
-    0%   { transform: translateY(-8px); }
-    100% { transform: translateY(8px); }
+    font-size: 14px; box-shadow: 0 0 10px rgba(56,189,248,0.25);
   }
 
-  /* ── SUBMIT BTN ── */
   .submit-btn {
-    width: 100%; margin-top: 18px;
-    padding: 14px;
+    width: 100%; margin-top: 18px; padding: 14px;
     background: linear-gradient(135deg, #7c3aed, #a855f7);
     border: none; border-radius: 12px;
     color: #fff;
     font-family: 'Orbitron', monospace;
     font-size: 12px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase;
-    cursor: pointer;
-    position: relative; overflow: hidden;
+    cursor: pointer; position: relative; overflow: hidden;
     transition: all 0.25s;
     box-shadow: 0 4px 20px rgba(168,85,247,0.35);
   }
   .submit-btn::after {
-    content: '';
-    position: absolute; inset: 0;
+    content: ''; position: absolute; inset: 0;
     background: linear-gradient(135deg, rgba(255,255,255,0.12), transparent);
   }
-  .submit-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 30px rgba(168,85,247,0.5);
-  }
+  .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(168,85,247,0.5); }
   .submit-btn:active { transform: translateY(0); }
 
-  /* ── ERROR / SUCCESS TOAST ── */
   .msg {
     padding: 10px 14px; border-radius: 8px;
     font-family: 'JetBrains Mono', monospace;
     font-size: 11px; letter-spacing: 0.05em;
     margin-bottom: 14px; display: none;
   }
-  .msg.err  { background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.3); color: var(--danger); display: block; }
-  .msg.ok   { background: rgba(52,211,153,0.1);  border: 1px solid rgba(52,211,153,0.3);  color: var(--success); display: block; }
+  .msg.err { background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.3); color: var(--danger); display: block; }
+  .msg.ok  { background: rgba(52,211,153,0.1);  border: 1px solid rgba(52,211,153,0.3);  color: var(--success); display: block; }
 
-  /* ── FOOTER ── */
   .card-footer {
     margin-top: 24px; padding-top: 18px;
     border-top: 1px solid var(--border);
@@ -267,19 +227,12 @@
     text-align: center; letter-spacing: 0.05em;
   }
 
-  /* ── SCAN RING (decorative corner) ── */
-  .corner {
-    position: absolute;
-    width: 14px; height: 14px;
-    border-color: var(--accent); border-style: solid;
-    opacity: 0.5;
-  }
-  .corner-tl { top: -1px; left: -1px; border-width: 2px 0 0 2px; border-radius: 4px 0 0 0; }
-  .corner-tr { top: -1px; right: -1px; border-width: 2px 2px 0 0; border-radius: 0 4px 0 0; }
-  .corner-bl { bottom: -1px; left: -1px; border-width: 0 0 2px 2px; border-radius: 0 0 0 4px; }
+  .corner { position: absolute; width: 14px; height: 14px; border-color: var(--accent); border-style: solid; opacity: 0.5; }
+  .corner-tl { top: -1px; left: -1px;   border-width: 2px 0 0 2px; border-radius: 4px 0 0 0; }
+  .corner-tr { top: -1px; right: -1px;  border-width: 2px 2px 0 0; border-radius: 0 4px 0 0; }
+  .corner-bl { bottom: -1px; left: -1px;  border-width: 0 0 2px 2px; border-radius: 0 0 0 4px; }
   .corner-br { bottom: -1px; right: -1px; border-width: 0 2px 2px 0; border-radius: 0 0 4px 0; }
 
-  /* password eye toggle */
   .eye-btn {
     position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
     background: none; border: none; cursor: pointer;
@@ -302,7 +255,6 @@
 
 <div class="scene">
   <div class="auth-card" style="position:relative;">
-    <!-- corner decorations -->
     <div class="corner corner-tl"></div>
     <div class="corner corner-tr"></div>
     <div class="corner corner-bl"></div>
@@ -312,16 +264,14 @@
       <span class="brand-star">✦</span> My Space
     </div>
 
-    <!-- TABS -->
     <div class="tab-row">
       <button class="tab active" id="tab-login"  onclick="switchTab('login')">Login</button>
       <button class="tab"        id="tab-signup" onclick="switchTab('signup')">Sign Up</button>
     </div>
 
-    <!-- MESSAGE AREA -->
     <div class="msg" id="msg-box"></div>
 
-    <!-- ── LOGIN PANEL ── -->
+    <!-- LOGIN PANEL -->
     <div class="panel active" id="panel-login">
       <div class="field">
         <label class="field-label">Username</label>
@@ -343,13 +293,13 @@
 
       <div class="divider">or</div>
 
-      <button class="face-btn" onclick="handleFaceLogin()">
-        <div class="face-icon" style="position:relative;">🪪</div>
+      <button class="face-btn" id="face-login-btn" onclick="handleFaceLogin()">
+        <div class="face-icon">🪪</div>
         <span>Login with Face Recognition</span>
       </button>
     </div>
 
-    <!-- ── SIGNUP PANEL ── -->
+    <!-- SIGNUP PANEL -->
     <div class="panel" id="panel-signup">
       <div class="field">
         <label class="field-label">Username</label>
@@ -377,52 +327,50 @@
       <div class="field">
         <label class="field-label">Secret Key</label>
         <div class="inp-wrap">
-            <span class="inp-icon">🔑</span>
-            <input class="inp" id="signup-key" type="password" placeholder="enter secret key">
+          <span class="inp-icon">🔑</span>
+          <input class="inp" id="signup-key" type="password" placeholder="enter secret key">
         </div>
       </div>
+
       <button class="submit-btn" onclick="handleSignup()">Create Account →</button>
 
       <div class="divider">or</div>
 
-      <button class="face-btn" onclick="handleFaceSignup()">
-        <div class="face-icon" style="position:relative;">🪪</div>
+      <button class="face-btn" id="face-signup-btn" onclick="handleFaceSignup()">
+        <div class="face-icon">🪪</div>
         <span>Register Face ID</span>
       </button>
     </div>
 
-    <div class="card-footer">
-      ✦ My Space · Local Auth · All data stored on your device
-    </div>
+    <div class="card-footer">✦ My Space · Secure Auth · Data stored on your device</div>
   </div>
 </div>
 
 <script>
-
 /* ── CURSOR ── */
-const glow = document.getElementById('cursor-glow');
+const glowEl = document.getElementById('cursor-glow');
 document.addEventListener('mousemove', e => {
-  glow.style.left = e.clientX + 'px';
-  glow.style.top  = e.clientY + 'px';
+  glowEl.style.left = e.clientX + 'px';
+  glowEl.style.top  = e.clientY + 'px';
 });
 
 /* ── STARS ── */
-const canvas = document.getElementById('star-canvas');
-const ctx = canvas.getContext('2d');
+const starCanvas = document.getElementById('star-canvas');
+const ctx = starCanvas.getContext('2d');
 let stars = [];
 function initStars() {
-  canvas.width  = window.innerWidth;
-  canvas.height = window.innerHeight;
-  stars = Array.from({length: 180}, () => ({
-    x: Math.random() * canvas.width,
-    y: Math.random() * canvas.height,
+  starCanvas.width  = window.innerWidth;
+  starCanvas.height = window.innerHeight;
+  stars = Array.from({ length: 180 }, () => ({
+    x: Math.random() * starCanvas.width,
+    y: Math.random() * starCanvas.height,
     r: Math.random() * 1.4 + 0.2,
     a: Math.random(),
     da: (Math.random() - 0.5) * 0.004,
   }));
 }
 function drawStars() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.clearRect(0, 0, starCanvas.width, starCanvas.height);
   stars.forEach(s => {
     s.a = Math.max(0.05, Math.min(1, s.a + s.da));
     if (s.a <= 0.05 || s.a >= 1) s.da *= -1;
@@ -437,7 +385,7 @@ initStars();
 drawStars();
 window.addEventListener('resize', initStars);
 
-/* ── TAB SWITCH ── */
+/* ── TABS ── */
 function switchTab(t) {
   document.getElementById('panel-login').classList.toggle('active', t === 'login');
   document.getElementById('panel-signup').classList.toggle('active', t === 'signup');
@@ -446,8 +394,8 @@ function switchTab(t) {
   clearMsg();
 }
 
-/* ── MESSAGE ── */
-function showMsg(text, type='err') {
+/* ── MESSAGES ── */
+function showMsg(text, type = 'err') {
   const el = document.getElementById('msg-box');
   el.textContent = text;
   el.className = 'msg ' + type;
@@ -465,40 +413,54 @@ function toggleEye(id, btn) {
   btn.textContent = inp.type === 'password' ? '👁' : '🙈';
 }
 
+/* ── CAPTURE WEBCAM FRAME → base64 ── */
+async function captureFrame() {
+  const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+  const video  = document.createElement('video');
+  video.srcObject = stream;
+  video.muted = true;
 
+  // wait for video to be ready and playing
+  await new Promise((resolve, reject) => {
+    video.oncanplay = resolve;
+    video.onerror   = reject;
+  });
+  await video.play();
+
+  await new Promise(r => setTimeout(r, 600));
+
+  const cap = document.createElement('canvas');
+  cap.width  = video.videoWidth;
+  cap.height = video.videoHeight;
+  cap.getContext('2d').drawImage(video, 0, 0);
+
+  stream.getTracks().forEach(t => t.stop());
+
+  return cap.toDataURL('image/jpeg');
+}
+
+/* ── LOGIN ── */
 async function handleLogin() {
   clearMsg();
-
   const user = document.getElementById('login-user').value.trim();
   const pass = document.getElementById('login-pass').value;
+  if (!user || !pass) return showMsg('⚠ Please fill in all fields.');
 
-  if (!user || !pass)
-    return showMsg('⚠ Please fill in all fields.');
-
-  const res = await fetch('/api/login', {
+  const res  = await fetch('/api/login', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      username: user,
-      password: pass
-    })
+    body: JSON.stringify({ username: user, password: pass })
   });
-
   const data = await res.json();
-
-  if (!res.ok)
-    return showMsg('⚠ ' + data.error);
+  if (!res.ok) return showMsg('⚠ ' + data.error);
 
   localStorage.setItem('loggedIn', 'true');
   localStorage.setItem('username', user);
-
   showMsg('✓ Welcome back! Redirecting…', 'ok');
-
-  setTimeout(() => {
-    window.location.href = 'index.html';
-  }, 1200);
+  setTimeout(() => { window.location.href = '/index.html'; }, 1200);
 }
 
+/* ── SIGNUP ── */
 async function handleSignup() {
   clearMsg();
   const user    = document.getElementById('signup-user').value.trim();
@@ -507,33 +469,77 @@ async function handleSignup() {
   const key     = document.getElementById('signup-key').value;
 
   if (!user || !pass || !confirm || !key) return showMsg('⚠ Please fill in all fields.');
-  if (pass.length < 6) return showMsg('⚠ Password must be at least 6 characters.');
+  if (pass.length < 6)  return showMsg('⚠ Password must be at least 6 characters.');
   if (pass !== confirm) return showMsg('⚠ Passwords do not match.');
-  const res = await fetch('/api/register', {
+
+  const res  = await fetch('/api/register', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-        username: user,
-        password: pass,
-        secreteKey: key,
-    })
-    });
-
-    const data = await res.json();
-
+    body: JSON.stringify({ username: user, password: pass, secreteKey: key })
+  });
+  const data = await res.json();
   if (!res.ok) return showMsg('⚠ ' + data.error);
+
+  localStorage.setItem('loggedIn', 'true');
+  localStorage.setItem('username', user);
   showMsg('✓ Account created! Logging you in…', 'ok');
   setTimeout(() => { window.location.href = '/index.html'; }, 1200);
 }
 
-/* ── FACE RECOGNITION STUBS ── */
-function handleFaceLogin() {
-  
-  showMsg('Face Recognition triggered (login). Integrate your handler here.', 'ok');
+/* ── FACE LOGIN ── */
+async function handleFaceLogin() {
+  const btn = document.getElementById('face-login-btn');
+  btn.disabled = true;
+  showMsg('📷 Capturing your face…', 'ok');
+  try {
+    const image = await captureFrame();
+    showMsg('🔍 Recognizing…', 'ok');
+    const res  = await fetch('/api/face-login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ image })
+    });
+    const data = await res.json();
+    if (!res.ok) return showMsg('⚠ ' + data.error);
+    localStorage.setItem('loggedIn', 'true');
+    localStorage.setItem('username', data.username);
+    showMsg('✓ Face recognized! Redirecting…', 'ok');
+    setTimeout(() => { window.location.href = '/index.html'; }, 1200);
+  } catch (err) {
+    showMsg('⚠ Camera error: ' + err.message);
+  } finally {
+    btn.disabled = false;
+  }
 }
-function handleFaceSignup() {
-  
-  showMsg('Face Recognition triggered (register). Integrate your handler here.', 'ok');
+
+/* ── FACE REGISTER ── */
+async function handleFaceSignup() {
+  const username = document.getElementById('signup-user').value.trim();
+  const seckey   = document.getElementById('signup-key').value;
+  if (!username || !seckey) return showMsg('⚠ Enter username and secret key before registering face.');
+
+  const btn = document.getElementById('face-signup-btn');
+  btn.disabled = true;
+  showMsg('📷 Capturing your face…', 'ok');
+  try {
+    const image = await captureFrame();
+    showMsg('💾 Registering face…', 'ok');
+    const res  = await fetch('/api/face-register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, secreteKey: seckey, image })
+    });
+    const data = await res.json();
+    if (!res.ok) return showMsg('⚠ ' + data.error);
+    localStorage.setItem('loggedIn', 'true');
+    localStorage.setItem('username', username);
+    showMsg('✓ Face registered! Redirecting…', 'ok');
+    setTimeout(() => { window.location.href = '/index.html'; }, 1200);
+  } catch (err) {
+    showMsg('⚠ Camera error: ' + err.message);
+  } finally {
+    btn.disabled = false;
+  }
 }
 
 /* ── ENTER KEY ── */

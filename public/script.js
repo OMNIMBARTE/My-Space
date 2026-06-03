@@ -132,7 +132,7 @@ async function boot() {
   updateWpSlots();
   tick();
   setInterval(tick, 30000);
-  setInterval(tick, 1000); // update seconds for focus timer
+  setInterval(tick, 1000);
   focusRender();
   showQuote();
 }
