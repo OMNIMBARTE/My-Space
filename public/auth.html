@@ -427,7 +427,7 @@ async function captureFrame() {
   });
   await video.play();
 
-  await new Promise(r => setTimeout(r, 600));
+  await new Promise(r => setTimeout(r, 1200));
 
   const cap = document.createElement('canvas');
   cap.width  = video.videoWidth;

@@ -30,7 +30,7 @@ def face_login():
     finally:
         os.remove(tmp_path)
         
-    if name in ['unknown_person', 'no_persons_found']:
+    if name in ['unknown_person', 'no_person_found']:
         return jsonify({'ok': False, 'error': 'Face not recognized'}), 401
     return jsonify({'ok': True, 'username': name})
 
@@ -46,10 +46,10 @@ def face_register():
         return jsonify({'error': 'Invalid Secrete Key'}), 403
     
     img_bytes = base64.b64decode(image.split(',')[1])
-    save_path = os.path.join(DB_DIR, f'{username}.jpg')
     
-    with open(save_path, 'wb') as f:
+    with tempfile.NamedTemporaryFile(suffix='.jpg', delete=False) as f:
         f.write(img_bytes)
+        tmp_path = f.name
     
     return jsonify({'ok':True})
 
