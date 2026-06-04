@@ -46,10 +46,10 @@ def face_register():
         return jsonify({'error': 'Invalid Secrete Key'}), 403
     
     img_bytes = base64.b64decode(image.split(',')[1])
+    save_path = os.path.join(DB_DIR, f'{username}.jpg')
     
-    with tempfile.NamedTemporaryFile(suffix='.jpg', delete=False) as f:
+    with open(save_path, 'wb') as f:
         f.write(img_bytes)
-        tmp_path = f.name
     
     return jsonify({'ok':True})
 
