@@ -59,19 +59,20 @@ my-space/
 ## Getting Started
 
 ### Prerequisites
-- [Node.js](https://nodejs.org/) v16 or higher
+- [Node.js](https://nodejs.org/) v18 or higher
+- [Python 3.10+](https://python.org/) with `face_recognition`, `dlib`, `flask`, `Pillow`, `numpy`
 
-### Installation
+### Installation & Starting
 
 ```bash
-# 1. Clone the repo
-git clone https://github.com/your-username/my-space.git
-cd my-space
-
-# 2. Install dependencies
+# 1. Install Node.js dependencies
 npm install
 
-# 3. Start the server
+# 2. In one terminal, start the Face Recognition microservice
+npm run face-api
+# or: python3 Face_Recognition/face_api.py
+
+# 3. In another terminal, start the web server
 npm start
 ```
 

@@ -21,13 +21,12 @@
     --success:   #34d399;
   }
 
-  /* FIX: allow scrolling when card is taller than viewport */
   html, body {
     min-height: 100%;
     font-family: 'Manrope', sans-serif;
     background: var(--bg);
     color: var(--text);
-    overflow-y: auto;   /* was: overflow: hidden — that blocked scroll */
+    overflow-y: auto;
   }
 
   #star-canvas {
@@ -215,6 +214,7 @@
     font-family: 'JetBrains Mono', monospace;
     font-size: 11px; letter-spacing: 0.05em;
     margin-bottom: 14px; display: none;
+    line-height: 1.5;
   }
   .msg.err { background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.3); color: var(--danger); display: block; }
   .msg.ok  { background: rgba(52,211,153,0.1);  border: 1px solid rgba(52,211,153,0.3);  color: var(--success); display: block; }
@@ -240,6 +240,104 @@
     transition: color 0.2s;
   }
   .eye-btn:hover { color: var(--accent); }
+
+  /* ── BIOMETRIC CAMERA SCANNER MODAL ── */
+  .cam-modal-backdrop {
+    position: fixed; inset: 0; z-index: 100;
+    background: rgba(3, 6, 18, 0.85);
+    backdrop-filter: blur(14px);
+    display: none; align-items: center; justify-content: center;
+    padding: 20px;
+    animation: fadeIn 0.25s ease;
+  }
+  .cam-modal-backdrop.open { display: flex; }
+
+  .cam-modal-card {
+    position: relative;
+    width: 100%; max-width: 440px;
+    background: rgba(12, 18, 38, 0.95);
+    border: 1px solid var(--border-hi);
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.8), 0 0 40px rgba(56,189,248,0.2);
+    text-align: center;
+  }
+
+  .cam-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 13px; font-weight: 700;
+    letter-spacing: 0.15em;
+    color: var(--accent2);
+    margin-bottom: 16px;
+    text-transform: uppercase;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+
+  .cam-viewport-wrap {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    background: #000;
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid rgba(56,189,248,0.3);
+    margin-bottom: 16px;
+  }
+
+  #cam-video {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    transform: scaleX(-1); /* mirror view for natural webcam experience */
+  }
+
+  .cam-scanline {
+    position: absolute; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, transparent, #38bdf8, transparent);
+    box-shadow: 0 0 12px #38bdf8;
+    animation: scanAnimation 2s ease-in-out infinite alternate;
+    pointer-events: none;
+  }
+  @keyframes scanAnimation {
+    0%   { top: 5%; }
+    100% { top: 92%; }
+  }
+
+  .cam-reticle {
+    position: absolute; inset: 18%;
+    border: 2px dashed rgba(56, 189, 248, 0.5);
+    border-radius: 50%;
+    pointer-events: none;
+    box-shadow: inset 0 0 15px rgba(56, 189, 248, 0.15);
+  }
+
+  .cam-status {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text);
+    margin-bottom: 16px;
+    min-height: 18px;
+  }
+
+  .cam-btns {
+    display: flex; gap: 10px;
+  }
+  .cam-btn-cap {
+    flex: 2; padding: 12px;
+    background: linear-gradient(135deg, #0284c7, #38bdf8);
+    border: none; border-radius: 10px;
+    color: #fff; font-family: 'Orbitron', monospace; font-size: 11px;
+    font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .cam-btn-cap:hover { transform: translateY(-1px); box-shadow: 0 4px 15px rgba(56,189,248,0.4); }
+  .cam-btn-cancel {
+    flex: 1; padding: 12px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid var(--border); border-radius: 10px;
+    color: var(--muted); font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .cam-btn-cancel:hover { color: var(--text); background: rgba(255,255,255,0.1); }
 </style>
 </head>
 <body>
@@ -289,11 +387,11 @@
         </div>
       </div>
 
-      <button class="submit-btn" onclick="handleLogin()">Access My Space →</button>
+      <button class="submit-btn" id="btn-login-submit" onclick="handleLogin()">Access My Space →</button>
 
       <div class="divider">or</div>
 
-      <button class="face-btn" id="face-login-btn" onclick="handleFaceLogin()">
+      <button class="face-btn" id="face-login-btn" onclick="startBiometricFlow('login')">
         <div class="face-icon">🪪</div>
         <span>Login with Face Recognition</span>
       </button>
@@ -332,21 +430,61 @@
         </div>
       </div>
 
-      <button class="submit-btn" onclick="handleSignup()">Create Account →</button>
+      <button class="submit-btn" id="btn-signup-submit" onclick="handleSignup()">Create Account →</button>
 
       <div class="divider">or</div>
 
-      <button class="face-btn" id="face-signup-btn" onclick="handleFaceSignup()">
+      <button class="face-btn" id="face-signup-btn" onclick="startBiometricFlow('register')">
         <div class="face-icon">🪪</div>
         <span>Register Face ID</span>
       </button>
     </div>
 
-    <div class="card-footer">✦ My Space · Secure Auth · Data stored on your device</div>
+    <div class="card-footer">✦ My Space · Fast & Secure Biometric Auth</div>
+  </div>
+</div>
+
+<!-- ── BIOMETRIC CAMERA SCANNER MODAL ── -->
+<div class="cam-modal-backdrop" id="cam-modal">
+  <div class="cam-modal-card">
+    <div class="corner corner-tl"></div>
+    <div class="corner corner-tr"></div>
+    <div class="corner corner-bl"></div>
+    <div class="corner corner-br"></div>
+
+    <div class="cam-title" id="cam-title">✦ Biometric Face Scan</div>
+    <div class="cam-viewport-wrap">
+      <video id="cam-video" autoplay playsinline muted></video>
+      <div class="cam-scanline"></div>
+      <div class="cam-reticle"></div>
+    </div>
+    <div class="cam-status" id="cam-status">Align your face inside the circle…</div>
+    <div class="cam-btns">
+      <button class="cam-btn-cancel" onclick="closeBiometricModal()">Cancel</button>
+      <button class="cam-btn-cap" id="cam-action-btn" onclick="triggerSnapshot()">Capture & Verify</button>
+    </div>
   </div>
 </div>
 
 <script>
+/* ── AUTO-REDIRECT IF ALREADY LOGGED IN ── */
+(async function checkExistingAuth() {
+  const token = localStorage.getItem('authToken');
+  if (token) {
+    try {
+      const res = await fetch('/api/auth/verify', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      if (res.ok) {
+        window.location.href = '/index.html';
+      } else {
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('loggedIn');
+      }
+    } catch {}
+  }
+})();
+
 /* ── CURSOR ── */
 const glowEl = document.getElementById('cursor-glow');
 document.addEventListener('mousemove', e => {
@@ -361,7 +499,7 @@ let stars = [];
 function initStars() {
   starCanvas.width  = window.innerWidth;
   starCanvas.height = window.innerHeight;
-  stars = Array.from({ length: 180 }, () => ({
+  stars = Array.from({ length: 150 }, () => ({
     x: Math.random() * starCanvas.width,
     y: Math.random() * starCanvas.height,
     r: Math.random() * 1.4 + 0.2,
@@ -413,51 +551,38 @@ function toggleEye(id, btn) {
   btn.textContent = inp.type === 'password' ? '👁' : '🙈';
 }
 
-/* ── CAPTURE WEBCAM FRAME → base64 ── */
-async function captureFrame() {
-  const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-  const video  = document.createElement('video');
-  video.srcObject = stream;
-  video.muted = true;
-
-  // wait for video to be ready and playing
-  await new Promise((resolve, reject) => {
-    video.oncanplay = resolve;
-    video.onerror   = reject;
-  });
-  await video.play();
-
-  await new Promise(r => setTimeout(r, 1200));
-
-  const cap = document.createElement('canvas');
-  cap.width  = video.videoWidth;
-  cap.height = video.videoHeight;
-  cap.getContext('2d').drawImage(video, 0, 0);
-
-  stream.getTracks().forEach(t => t.stop());
-
-  return cap.toDataURL('image/jpeg');
-}
-
-/* ── LOGIN ── */
+/* ── PASSWORD LOGIN ── */
 async function handleLogin() {
   clearMsg();
   const user = document.getElementById('login-user').value.trim();
   const pass = document.getElementById('login-pass').value;
   if (!user || !pass) return showMsg('⚠ Please fill in all fields.');
 
-  const res  = await fetch('/api/login', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ username: user, password: pass })
-  });
-  const data = await res.json();
-  if (!res.ok) return showMsg('⚠ ' + data.error);
+  const btn = document.getElementById('btn-login-submit');
+  btn.disabled = true;
+  btn.textContent = 'Authenticating…';
 
-  localStorage.setItem('loggedIn', 'true');
-  localStorage.setItem('username', user);
-  showMsg('✓ Welcome back! Redirecting…', 'ok');
-  setTimeout(() => { window.location.href = '/index.html'; }, 1200);
+  try {
+    const res  = await fetch('/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: user, password: pass })
+    });
+    const data = await res.json();
+    if (!res.ok) return showMsg('⚠ ' + (data.error || 'Login failed'));
+
+    localStorage.setItem('loggedIn', 'true');
+    localStorage.setItem('username', data.username);
+    localStorage.setItem('authToken', data.token);
+
+    showMsg('✓ Welcome back! Redirecting…', 'ok');
+    setTimeout(() => { window.location.href = '/index.html'; }, 600);
+  } catch (err) {
+    showMsg('⚠ Server connection error: ' + err.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Access My Space →';
+  }
 }
 
 /* ── SIGNUP ── */
@@ -466,85 +591,216 @@ async function handleSignup() {
   const user    = document.getElementById('signup-user').value.trim();
   const pass    = document.getElementById('signup-pass').value;
   const confirm = document.getElementById('signup-confirm').value;
-  const key     = document.getElementById('signup-key').value;
+  const key     = document.getElementById('signup-key').value.trim();
 
   if (!user || !pass || !confirm || !key) return showMsg('⚠ Please fill in all fields.');
   if (pass.length < 6)  return showMsg('⚠ Password must be at least 6 characters.');
   if (pass !== confirm) return showMsg('⚠ Passwords do not match.');
 
-  const res  = await fetch('/api/register', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ username: user, password: pass, secreteKey: key })
-  });
-  const data = await res.json();
-  if (!res.ok) return showMsg('⚠ ' + data.error);
-
-  localStorage.setItem('loggedIn', 'true');
-  localStorage.setItem('username', user);
-  showMsg('✓ Account created! Logging you in…', 'ok');
-  setTimeout(() => { window.location.href = '/index.html'; }, 1200);
-}
-
-/* ── FACE LOGIN ── */
-async function handleFaceLogin() {
-  const btn = document.getElementById('face-login-btn');
+  const btn = document.getElementById('btn-signup-submit');
   btn.disabled = true;
-  showMsg('📷 Capturing your face…', 'ok');
+  btn.textContent = 'Creating Account…';
+
   try {
-    const image = await captureFrame();
-    showMsg('🔍 Recognizing…', 'ok');
-    const res  = await fetch('/api/face-login', {
+    const res  = await fetch('/api/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ image })
+      body: JSON.stringify({ username: user, password: pass, secretKey: key })
     });
     const data = await res.json();
-    if (!res.ok) return showMsg('⚠ ' + data.error);
+    if (!res.ok) return showMsg('⚠ ' + (data.error || 'Registration failed'));
+
     localStorage.setItem('loggedIn', 'true');
     localStorage.setItem('username', data.username);
-    showMsg('✓ Face recognized! Redirecting…', 'ok');
-    setTimeout(() => { window.location.href = '/index.html'; }, 1200);
+    localStorage.setItem('authToken', data.token);
+
+    showMsg('✓ Account created! Redirecting…', 'ok');
+    setTimeout(() => { window.location.href = '/index.html'; }, 600);
   } catch (err) {
-    showMsg('⚠ Camera error: ' + err.message);
+    showMsg('⚠ Server connection error: ' + err.message);
   } finally {
     btn.disabled = false;
+    btn.textContent = 'Create Account →';
   }
 }
 
-/* ── FACE REGISTER ── */
-async function handleFaceSignup() {
-  const username = document.getElementById('signup-user').value.trim();
-  const seckey   = document.getElementById('signup-key').value;
-  if (!username || !seckey) return showMsg('⚠ Enter username and secret key before registering face.');
+/* ══════════════════════════════════════════════════
+   HIGH-SPEED BIOMETRIC CAMERA VIEWFINDER & CAPTURE
+══════════════════════════════════════════════════ */
+let activeStream = null;
+let biometricMode = 'login'; // 'login' or 'register'
+let autoCaptureTimer = null;
 
-  const btn = document.getElementById('face-signup-btn');
-  btn.disabled = true;
-  showMsg('📷 Capturing your face…', 'ok');
+async function startBiometricFlow(mode) {
+  clearMsg();
+  biometricMode = mode;
+
+  if (mode === 'register') {
+    const user = document.getElementById('signup-user').value.trim();
+    const key  = document.getElementById('signup-key').value.trim();
+    if (!user || !key) {
+      return showMsg('⚠ Please enter Username and Secret Key before registering Face ID.');
+    }
+  }
+
+  const modal = document.getElementById('cam-modal');
+  const title = document.getElementById('cam-title');
+  const status = document.getElementById('cam-status');
+  const actBtn = document.getElementById('cam-action-btn');
+
+  title.textContent = mode === 'login' ? '✦ Biometric Face Login' : '✦ Register Face ID';
+  status.textContent = 'Starting camera…';
+  actBtn.disabled = true;
+  modal.classList.add('open');
+
   try {
-    const image = await captureFrame();
-    showMsg('💾 Registering face…', 'ok');
-    const res  = await fetch('/api/face-register', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, secreteKey: seckey, image })
+    activeStream = await navigator.mediaDevices.getUserMedia({
+      video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: 'user' }
     });
-    const data = await res.json();
-    if (!res.ok) return showMsg('⚠ ' + data.error);
-    localStorage.setItem('loggedIn', 'true');
-    localStorage.setItem('username', username);
-    showMsg('✓ Face registered! Redirecting…', 'ok');
-    setTimeout(() => { window.location.href = '/index.html'; }, 1200);
+    const video = document.getElementById('cam-video');
+    video.srcObject = activeStream;
+
+    await new Promise((resolve, reject) => {
+      video.onloadedmetadata = () => { video.play().then(resolve).catch(reject); };
+      video.onerror = reject;
+    });
+
+    status.textContent = 'Camera active. Position face in circle…';
+    actBtn.disabled = false;
+
+    // Optional quick auto-capture after 800ms
+    autoCaptureTimer = setTimeout(() => {
+      if (modal.classList.contains('open')) {
+        triggerSnapshot();
+      }
+    }, 1200);
+
   } catch (err) {
-    showMsg('⚠ Camera error: ' + err.message);
-  } finally {
-    btn.disabled = false;
+    closeBiometricModal();
+    showMsg('⚠ Camera access error: ' + (err.message || 'Permission denied'));
+  }
+}
+
+function closeBiometricModal() {
+  clearTimeout(autoCaptureTimer);
+  const modal = document.getElementById('cam-modal');
+  modal.classList.remove('open');
+  if (activeStream) {
+    activeStream.getTracks().forEach(t => t.stop());
+    activeStream = null;
+  }
+}
+
+// Optimized, lightweight frame extraction (~35KB JPEG)
+function extractFrameData() {
+  const video = document.getElementById('cam-video');
+  const origW = video.videoWidth || 640;
+  const origH = video.videoHeight || 480;
+
+  // Max dimension 640px for ultra-fast network transfer & neural net processing
+  const maxDim = 640;
+  let w = origW, h = origH;
+  if (w > maxDim || h > maxDim) {
+    if (w >= h) {
+      h = Math.round((origH * maxDim) / origW);
+      w = maxDim;
+    } else {
+      w = Math.round((origW * maxDim) / origH);
+      h = maxDim;
+    }
+  }
+
+  const canvas = document.createElement('canvas');
+  canvas.width  = w;
+  canvas.height = h;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(video, 0, 0, w, h);
+
+  return canvas.toDataURL('image/jpeg', 0.82);
+}
+
+async function triggerSnapshot() {
+  clearTimeout(autoCaptureTimer);
+  const status = document.getElementById('cam-status');
+  const actBtn = document.getElementById('cam-action-btn');
+  actBtn.disabled = true;
+  status.textContent = 'Processing face scan…';
+
+  const base64Image = extractFrameData();
+
+  if (biometricMode === 'login') {
+    try {
+      const res = await fetch('/api/face-login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ image: base64Image })
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        status.textContent = '❌ ' + (data.error || 'Face not recognized');
+        actBtn.disabled = false;
+        return;
+      }
+
+      status.textContent = `✓ Recognized as ${data.username}! (${data.confidence || 98}% match)`;
+      localStorage.setItem('loggedIn', 'true');
+      localStorage.setItem('username', data.username);
+      localStorage.setItem('authToken', data.token);
+
+      setTimeout(() => {
+        closeBiometricModal();
+        window.location.href = '/index.html';
+      }, 500);
+
+    } catch (err) {
+      status.textContent = '⚠ Network error: ' + err.message;
+      actBtn.disabled = false;
+    }
+
+  } else {
+    // Face registration
+    const user = document.getElementById('signup-user').value.trim();
+    const key  = document.getElementById('signup-key').value.trim();
+
+    try {
+      const res = await fetch('/api/face-register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: user, secretKey: key, image: base64Image })
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        status.textContent = '❌ ' + (data.error || 'Registration failed');
+        actBtn.disabled = false;
+        return;
+      }
+
+      status.textContent = `✓ Face profile saved for ${user}!`;
+      localStorage.setItem('loggedIn', 'true');
+      localStorage.setItem('username', user);
+      localStorage.setItem('authToken', data.token);
+
+      setTimeout(() => {
+        closeBiometricModal();
+        window.location.href = '/index.html';
+      }, 600);
+
+    } catch (err) {
+      status.textContent = '⚠ Network error: ' + err.message;
+      actBtn.disabled = false;
+    }
   }
 }
 
 /* ── ENTER KEY ── */
 document.addEventListener('keydown', e => {
   if (e.key !== 'Enter') return;
+  if (document.getElementById('cam-modal').classList.contains('open')) {
+    triggerSnapshot();
+    return;
+  }
   if (document.getElementById('panel-login').classList.contains('active')) handleLogin();
   else handleSignup();
 });

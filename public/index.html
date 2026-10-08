@@ -10,7 +10,7 @@
 
 </head>
 <script>
-if (localStorage.getItem('loggedIn') !== 'true') {
+if (localStorage.getItem('loggedIn') !== 'true' || !localStorage.getItem('authToken')) {
     window.location.href = '/auth.html';
 }
 </script>

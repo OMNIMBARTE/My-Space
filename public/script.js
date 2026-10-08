@@ -75,22 +75,34 @@ document.addEventListener('mousemove', e => {
    API
 ══════════════════════════════════════════════════ */
 const API = {
+  headers() {
+    const h = { 'Content-Type': 'application/json' };
+    const token = localStorage.getItem('authToken');
+    if (token) h['Authorization'] = 'Bearer ' + token;
+    return h;
+  },
   async get(path) {
-    const r = await fetch('/api/' + path);
+    const r = await fetch('/api/' + path, { headers: this.headers() });
+    if (r.status === 401) { logout(); throw new Error('Unauthorized'); }
     if (!r.ok) throw new Error(r.statusText);
     return r.json();
   },
   async post(path, body) {
     const r = await fetch('/api/' + path, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: this.headers(),
       body: JSON.stringify(body)
     });
+    if (r.status === 401) { logout(); throw new Error('Unauthorized'); }
     if (!r.ok) throw new Error(r.statusText);
     return r.json();
   },
   async del(path) {
-    const r = await fetch('/api/' + path, { method: 'DELETE' });
+    const r = await fetch('/api/' + path, {
+      method: 'DELETE',
+      headers: this.headers()
+    });
+    if (r.status === 401) { logout(); throw new Error('Unauthorized'); }
     if (!r.ok) throw new Error(r.statusText);
     return r.json();
   }
@@ -108,6 +120,22 @@ let backendOk = false;
 ══════════════════════════════════════════════════ */
 async function boot() {
   setDbStatus('connecting');
+
+  // Verify auth session
+  try {
+    const authRes = await fetch('/api/auth/verify', { headers: API.headers() });
+    if (authRes.status === 401) {
+      logout();
+      return;
+    }
+    const authData = await authRes.json();
+    if (authData && authData.username) {
+      localStorage.setItem('username', authData.username);
+    }
+  } catch (e) {
+    console.warn('Auth verification network error:', e);
+  }
+
   try {
     const settings = await API.get('settings');
     isDark = settings.theme !== 'light';
@@ -131,7 +159,6 @@ async function boot() {
   applyWallpaperByContext();
   updateWpSlots();
   tick();
-  setInterval(tick, 30000);
   setInterval(tick, 1000);
   focusRender();
   showQuote();
@@ -174,7 +201,8 @@ function tick() {
   const hr = now.getHours();
   const period = getPeriod(hr);
   const greetWord = { night:'Good night', morning:'Good morning', afternoon:'Good afternoon', evening:'Good evening' }[period];
-  document.getElementById('greeting').innerHTML = greetWord + ', <strong>Om ✦</strong>';
+  const uname = localStorage.getItem('username') || 'Om';
+  document.getElementById('greeting').innerHTML = greetWord + ', <strong>' + uname + ' ✦</strong>';
 
   // Sub-greeting: change daily based on day-of-year
   const subs = GREET_SUBS[period];
@@ -511,10 +539,14 @@ function toast(msg) {
    LogOut
 ══════════════════════════════════════════════════ */
 
-function logout() {
-    localStorage.removeItem('loggedIn');
-    localStorage.removeItem('username');
-    window.location.href = '/auth.html';
+async function logout() {
+  try {
+    await fetch('/api/logout', { method: 'POST', headers: API.headers() });
+  } catch {}
+  localStorage.removeItem('loggedIn');
+  localStorage.removeItem('username');
+  localStorage.removeItem('authToken');
+  window.location.href = '/auth.html';
 }
 
 /* ══════════════════════════════════════════════════

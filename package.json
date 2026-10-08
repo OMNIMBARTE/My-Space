@@ -5,10 +5,11 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
+    "face-api": "python3 Face_Recognition/face_api.py",
     "dev": "npx nodemon server.js"
   },
   "dependencies": {
-    "express": "^4.22.2",
-    "require": "^2.4.20"
+    "compression": "^1.8.2",
+    "express": "^4.22.2"
   }
 }
